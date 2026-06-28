@@ -99,18 +99,7 @@ npx expo start
 
 Then press `i` for iOS Simulator or scan with Expo Go.
 
-## GitHub Setup
-
-Create an empty GitHub repository, then run:
-
-```bash
-git init
-git add .
-git commit -m "Initial POS product foundation"
-git branch -M main
-git remote add origin https://github.com/<your-username>/personal-operating-system.git
-git push -u origin main
-```
+ 
 
 ## Roadmap
 
