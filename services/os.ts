@@ -1,9 +1,36 @@
-import { AppData, CaptureEntry, ModuleKey, Project, RoutineItem } from '../types';
+import { AppData, CaptureEntry, ModuleKey, Project, RoutineItem, Task } from '../types';
 
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
 export function activeCharacter(data: AppData) {
   return data.characters.find(c => c.id === data.activeCharacterId) ?? data.characters[0];
+}
+
+
+export function preferredName(data: AppData) {
+  const active = activeCharacter(data);
+  return data.preferences?.preferredName || active.name?.split(' ')[0] || 'there';
+}
+
+export function personalPrompt(data: AppData, offset = 0) {
+  const prompts = data.preferences?.rotatingPrompts?.length
+    ? data.preferences.rotatingPrompts
+    : [activeCharacter(data).missionQuestion || 'What would move you closer to the person you are becoming today?'];
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  return prompts[(dayIndex + offset) % prompts.length];
+}
+
+export function openTasks(data: AppData): Task[] {
+  return (data.tasks ?? [])
+    .filter(task => task.status !== 'Done')
+    .sort((a, b) => {
+      const rank = { High: 0, Medium: 1, Low: 2 } as const;
+      return rank[a.priority] - rank[b.priority];
+    });
+}
+
+export function nextTask(data: AppData): Task | undefined {
+  return openTasks(data)[0];
 }
 
 export function enabledModules(data: AppData) {
@@ -25,6 +52,8 @@ export function getNextAction(data: AppData, done: Record<string, boolean>) {
   const routine = visibleRoutine(data);
   const nextRoutine = routine.find(item => !done[item.id]);
   if (nextRoutine) return { label: nextRoutine.title, detail: nextRoutine.time, source: 'Today routine' };
+  const task = nextTask(data);
+  if (task) return { label: task.title, detail: task.estimatedMinutes ? `${task.estimatedMinutes} min` : task.area, source: 'Task' };
   const activeProject = data.projects.find(p => p.status === 'Active' && p.progress < 100);
   if (activeProject) return { label: activeProject.nextAction, detail: activeProject.name, source: 'Project' };
   return { label: 'Rest and prepare tomorrow', detail: 'The visible plan is complete.', source: 'Recovery' };

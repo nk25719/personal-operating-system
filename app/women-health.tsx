@@ -155,7 +155,7 @@ export default function WomenHealthScreen() {
 
           <Card>
             <Text style={styles.cardTitle}>Optional Child Planning Clock</Text>
-            <Text style={styles.note}>This is an editable planning reminder, not a medical prediction. The reference age is user-controlled so different humans can choose their own planning horizon.</Text>
+            <Text style={styles.note}>This is an editable planning reminder, not a medical prediction. Choose the planning horizon that feels personally relevant.</Text>
             <Button title={`${data.womenHealth.fertilityPlanningEnabled ? '✓ ' : ''}Enable child-planning clock`} onPress={() => update({ fertilityPlanningEnabled: !data.womenHealth.fertilityPlanningEnabled })} />
             <Field label="Pregnancy intention" value={data.womenHealth.pregnancyIntent ?? ''} onChangeText={v => update({ pregnancyIntent: v as WomenHealthProfile['pregnancyIntent'] })} placeholder="notNow / maybeLater / trying / preferNotToSay" />
             <Field label="Reference age for planning" value={String(data.womenHealth.fertilityReferenceAge)} onChangeText={v => update({ fertilityReferenceAge: Number(v.replace(/[^0-9]/g, '')) || 35 })} />

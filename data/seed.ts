@@ -9,7 +9,7 @@ export const defaultData: AppData = {
       identity: 'Biomedical engineer, researcher, builder, learner, and human becoming stronger, freer, and more useful.',
       desiredPerson: 'A strong biomedical engineer who builds useful medical technology, publishes research, serves people, stays healthy, and earns enough freedom to relocate and live independently.',
       dailyObligations: 'Work Monday to Friday 08:00-17:00. Volunteer around 19:00-22:00. Morning routine before 07:45. Weekend gym and pool near parents. Weekly necessities check. Monthly shopping.',
-      missionQuestion: 'Does this move this human closer to the person they are trying to become?',
+      missionQuestion: 'What would move you closer to the person you are becoming today?',
       values: ['Health', 'Engineering mastery', 'Research', 'Service', 'Freedom', 'Relationships'],
       demographics: { biologicalSex: 'female', showWomenHealth: true },
       healthProfile: {
@@ -85,6 +85,13 @@ export const defaultData: AppData = {
     { id: 'builder-icon', name: 'Limor Fried', domain: 'Engineering maker entrepreneurship', whyRelevant: 'Models engineering, education, open hardware, and building useful products.', habitsToModel: ['Build in public', 'Document projects', 'Teach what you learn'], searchQueries: ['Limor Fried engineering habits Adafruit', 'open hardware founder routine'] },
     { id: 'learning-icon', name: 'Barbara Oakley', domain: 'Learning systems', whyRelevant: 'Models deliberate learning, engineering education, and study systems.', habitsToModel: ['Spaced repetition', 'Focused practice', 'Diffuse mode breaks'], searchQueries: ['Barbara Oakley learning how to learn study habits', 'spaced repetition engineering learning'] }
   ],
+
+  tasks: [
+    { id: 'task-dicom', title: 'Continue DICOM study during work', notes: 'Use a quiet 20-minute window. Focus on one workflow at a time.', area: 'Learning', status: 'Todo', priority: 'High', estimatedMinutes: 20, projectId: 'mastery', alignmentNote: 'Builds biomedical systems expertise.' },
+    { id: 'task-paper', title: 'Write one small section of the research paper', notes: 'Even 100 clear words counts.', area: 'Project', status: 'Todo', priority: 'High', estimatedMinutes: 30, projectId: 'paper', alignmentNote: 'Moves research identity forward.' },
+    { id: 'task-weekly-necessities', title: 'Check weekly necessities', notes: 'List what is missing before buying.', area: 'Home', status: 'Todo', priority: 'Medium', estimatedMinutes: 15, alignmentNote: 'Keeps life stable with low maintenance.' },
+    { id: 'task-krake-next', title: 'Define the next Krake technical action', notes: 'Pick one small technical action, not a whole project.', area: 'Project', status: 'Todo', priority: 'Medium', estimatedMinutes: 20, projectId: 'krake', alignmentNote: 'Supports useful medical technology work.' }
+  ],
   learningTopics: [
     { id: 'networking', name: 'Networking', day: 'Monday', nextAction: 'TCP/IP basics', resources: ['TCP/IP', 'VLAN', 'Wi-Fi basics'] },
     { id: 'dicom', name: 'DICOM', day: 'Tuesday', nextAction: 'DICOM workflow', resources: ['C-STORE', 'Query/Retrieve', 'Modality Worklist'] },
@@ -96,7 +103,7 @@ export const defaultData: AppData = {
     birthDate: '1999-01-01',
     expectedEndDate: '',
     displayMode: 'yearsMonthsDaysHours',
-    reminderText: 'Time is not pressure. It is clarity: choose what brings you closer to who you are becoming.'
+    reminderText: 'Time is not pressure. It is clarity for choosing what matters.'
   },
   womenHealth: {
     enabled: true,
@@ -109,6 +116,19 @@ export const defaultData: AppData = {
     fertilityReminderText: 'This is not pressure. It is optional clarity for choices, health conversations, and long-term planning.',
     displayMode: 'yearsMonthsDays',
     notes: ''
+  },
+
+  preferences: {
+    preferredName: 'Nagham',
+    tone: 'warm',
+    rotatingPrompts: [
+      'What would move you closer to the person you are becoming today?',
+      'What is one meaningful step toward the life you are building?',
+      'Will this help your future self feel proud of today?',
+      'What choice today reflects the person you want to become?',
+      'What would make today feel aligned with your values?',
+      'What small action would make the rest of the day easier?'
+    ]
   },
   integrations: {
     notionToken: '',

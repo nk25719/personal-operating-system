@@ -110,7 +110,7 @@ function ScoreRow({ label, value, setValue }: { label: string; value: number; se
 function buildEnvironmentRules(profile: EnvironmentProfile) {
   if (!profile.enabled) return [{ title: 'Environment context off', text: 'The planner will not use social environment or integrity rules until this module is enabled.' }];
   const rules = [
-    { title: 'Character is ecological', text: 'The POS treats places, people, media, and repeated experiences as inputs that shape the future self.' },
+    { title: 'Character is ecological', text: 'Places, people, media, and repeated experiences all shape who you become. Choose them with care.' },
     { title: 'Purpose filter', text: 'New outings, purchases, commitments, and relationships should be evaluated by whether they support the stated purpose and values.' },
     { title: 'Integrity is measured gently', text: 'A low score means adjust the system, repair the promise, or reduce friction. It is not an invitation to shame.' }
   ];

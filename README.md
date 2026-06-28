@@ -6,31 +6,33 @@ Unlike traditional productivity apps that mainly manage tasks, POS centers aroun
 
 ## Core Question
 
-> Which action right now contributes most to the person I am trying to become?
+> What would move you closer to the person you are becoming today?
 
-Every schedule, habit, reminder, purchase, outing, project, or commitment should be evaluated against this question.
+POS can rotate this guiding question so each person hears language that feels natural to them, such as “What would your future self thank you for?” or “What is one meaningful step toward the life you are building?”
 
 ## Product Goal
 
-POS should help a person run their life with very low maintenance. The user should spend less than two minutes per day maintaining the system. The app should use automation, conversation, integrations, and AI reasoning to reduce manual planning.
+POS should feel light enough to use every day. A person should be able to check in, capture what changed, and move on within a couple of minutes while automation, conversation, integrations, and AI reasoning reduce manual planning.
 
 ## Current Version
 
-**v0.1.0 - Product foundation**
+**v1.0.0 - Personal foundation**
 
 This repository currently contains an Expo / React Native iOS-ready MVP with:
 
 - Today-first dashboard
+- Visible Tasks screen
+- Visible Profile and demographics screen
 - Conversational capture screen
 - Optional modules layer
-- Editable identity, habits, goals, learning topics, health profile, environment, and integrity fields
+- Editable identity, personal language, demographics, habits, goals, tasks, learning topics, health profile, environment, and integrity fields
 - Reminder and calendar service hooks
 - AI advisor placeholder with local fallback
 - Notion and web research service placeholders
 
 ## Design Principles
 
-1. The user maintains the app in under two minutes per day.
+1. Daily check-ins stay short enough to feel natural.
 2. Automation comes before manual input.
 3. Conversation comes before forms.
 4. The visible interface stays simple; complexity lives in optional modules.

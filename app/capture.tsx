@@ -16,30 +16,30 @@ export default function CaptureScreen() {
     if (!text.trim()) return;
     const entry = extractActionsFromCapture(text.trim());
     await setData({ ...data, captureInbox: [entry, ...(data.captureInbox ?? [])] });
-    setLastMessage(`Captured. Suggested next action: ${suggestNextFromCapture(entry)}`);
+    setLastMessage(`Saved. A possible next step is: ${suggestNextFromCapture(entry)}`);
     setText('');
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Capture</Text>
-      <Text style={styles.subtitle}>One conversational input. The app extracts possible actions and suggests the right module. No form filling.</Text>
+      <Text style={styles.subtitle}>Drop a messy thought here. POS will keep it safe and suggest a useful next step.</Text>
       {lastMessage ? <Card><Text style={styles.message}>{lastMessage}</Text></Card> : null}
       <Card>
-        <Text style={styles.cardTitle}>What changed?</Text>
-        <Field label="Speak or type a messy note" value={text} onChangeText={setText} multiline placeholder="Example: I need to finish DICOM, buy toiletries, avoid late outings this week, and prepare for Saturday gym." />
-        <Button title="Capture and extract" onPress={save} />
+        <Text style={styles.cardTitle}>What would you like to remember?</Text>
+        <Field label="Quick note" value={text} onChangeText={setText} multiline placeholder="Example: I need to finish DICOM, buy toiletries, avoid late outings this week, and prepare for Saturday gym." />
+        <Button title="Save note" onPress={save} />
       </Card>
       <Card>
         <Text style={styles.cardTitle}>Inbox</Text>
         {(data.captureInbox ?? []).slice(0, 8).map(entry => (
           <View key={entry.id} style={styles.entry}>
             <Text style={styles.body}>{entry.text}</Text>
-            <Text style={styles.muted}>Suggested module: {entry.suggestedModule ?? 'today'}</Text>
+            <Text style={styles.muted}>Useful area: {entry.suggestedModule ?? 'today'}</Text>
             {entry.extractedActions.map(action => <Text key={action} style={styles.action}>• {action}</Text>)}
           </View>
         ))}
-        {!(data.captureInbox ?? []).length ? <Text style={styles.muted}>No captures yet.</Text> : null}
+        {!(data.captureInbox ?? []).length ? <Text style={styles.muted}>Nothing here yet. Add a thought, task, worry, idea, or decision when it appears.</Text> : null}
       </Card>
     </ScrollView>
   );

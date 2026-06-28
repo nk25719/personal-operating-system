@@ -41,7 +41,7 @@ export default function HealthScreen() {
         <Text style={styles.cardTitle}>Personalization Toggle</Text>
         <Button title={`${profile.enabled ? '✓ ' : ''}Use health context in habit planning`} onPress={() => updateHealth({ enabled: !profile.enabled })} />
         <Button title={`${profile.showHealthDisclaimer ? '✓ ' : ''}Show health disclaimers`} onPress={() => updateHealth({ showHealthDisclaimer: !profile.showHealthDisclaimer })} />
-        {profile.showHealthDisclaimer ? <Text style={styles.disclaimer}>POS can adapt routines around self-reported constraints, but it does not diagnose, treat, prescribe, or replace a clinician. For medical decisions, use qualified medical advice.</Text> : null}
+        {profile.showHealthDisclaimer ? <Text style={styles.disclaimer}>POS can adapt routines around what you share here. It is for personal organization only, not diagnosis, treatment, prescription, or a replacement for qualified medical care.</Text> : null}
       </Card>
 
       <Card>

@@ -21,6 +21,8 @@ export async function getAppData(): Promise<AppData> {
     ...stored,
     lifeProfile: { ...defaultData.lifeProfile, ...stored.lifeProfile },
     womenHealth: { ...defaultData.womenHealth, ...stored.womenHealth },
+    preferences: { ...defaultData.preferences, ...stored.preferences },
+    tasks: stored.tasks ?? defaultData.tasks,
     integrations: { ...defaultData.integrations, ...stored.integrations },
     modules: stored.modules ?? defaultData.modules,
     captureInbox: stored.captureInbox ?? defaultData.captureInbox

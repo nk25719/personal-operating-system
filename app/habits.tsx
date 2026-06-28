@@ -14,7 +14,7 @@ export default function HabitsScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Editable Habits</Text>
-      <Text style={styles.subtitle}>Each habit has a minimum version so the POS stays low-maintenance.</Text>
+      <Text style={styles.subtitle}>Each habit has a tiny version, so progress still counts on busy or tired days.</Text>
       <Button title="Add habit" onPress={() => setData({ ...data, habits: [...data.habits, newHabit()] })} />
       {data.habits.map(h => (
         <Card key={h.id}>

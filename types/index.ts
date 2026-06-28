@@ -1,3 +1,11 @@
+export type TonePreference = 'warm' | 'direct' | 'reflective' | 'coach' | 'minimal';
+
+export type UserPreferences = {
+  preferredName?: string;
+  tone: TonePreference;
+  rotatingPrompts: string[];
+};
+
 export type Character = {
   id: string;
   name: string;
@@ -25,6 +33,19 @@ export type Habit = {
   minimum: string;
   why: string;
   reminderTime?: string;
+};
+
+export type Task = {
+  id: string;
+  title: string;
+  notes?: string;
+  area: 'Personal' | 'Work' | 'Project' | 'Learning' | 'Health' | 'Home' | 'Service';
+  status: 'Todo' | 'Doing' | 'Done';
+  priority: 'Low' | 'Medium' | 'High';
+  dueDate?: string;
+  estimatedMinutes?: number;
+  projectId?: string;
+  alignmentNote?: string;
 };
 
 export type Project = {
@@ -155,10 +176,12 @@ export type AppData = {
   routine: RoutineItem[];
   habits: Habit[];
   projects: Project[];
+  tasks: Task[];
   learningTopics: LearningTopic[];
   iconResearch: IconResearchItem[];
   lifeProfile: LifeProfile;
   womenHealth: WomenHealthProfile;
+  preferences: UserPreferences;
   integrations: IntegrationSettings;
   modules: ModuleConfig[];
   captureInbox: CaptureEntry[];

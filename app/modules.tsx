@@ -16,10 +16,10 @@ export default function ModulesScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Modules</Text>
-      <Text style={styles.subtitle}>Keep Today simple. Turn extra features on only when they answer a real question.</Text>
+      <Text style={styles.subtitle}>Choose the tools that support your current season. Everything else can stay tucked away.</Text>
       <Card>
-        <Text style={styles.cardTitle}>Core principle</Text>
-        <Text style={styles.body}>The user should spend less than two minutes per day maintaining the POS. Modules should support Today, not compete with it.</Text>
+        <Text style={styles.cardTitle}>Daily simplicity</Text>
+        <Text style={styles.body}>Your daily check-in should feel light. Turn on a module when it helps you make a better choice, learn something useful, or care for yourself.</Text>
       </Card>
       {(data.modules ?? []).map(module => (
         <Card key={module.key}>
@@ -27,12 +27,12 @@ export default function ModulesScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.moduleTitle}>{module.title}</Text>
               <Text style={styles.body}>{module.purpose}</Text>
-              <Text style={styles.status}>{module.enabled ? 'Enabled' : 'Hidden from daily use'}</Text>
+              <Text style={styles.status}>{module.enabled ? 'Add to my toolsd' : 'Available when needed'}</Text>
             </View>
           </View>
           <View style={styles.buttonRow}>
-            <Button title={module.enabled ? 'Disable' : 'Enable'} onPress={() => toggle(module)} />
-            <Link href={module.route as any} asChild><Button title="Open" onPress={() => {}} /></Link>
+            <Button title={module.enabled ? 'Hide for now' : 'Add to my tools'} onPress={() => toggle(module)} />
+            <Link href={module.route as any} asChild><Button title="Open tool" onPress={() => {}} /></Link>
           </View>
         </Card>
       ))}

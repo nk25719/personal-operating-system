@@ -23,21 +23,21 @@ export default function SettingsScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Settings</Text>
-      <Text style={styles.subtitle}>Make the POS reusable for different humans and characters.</Text>
+      <Text style={styles.subtitle}>Shape POS around the person using it: their identity, values, obligations, and preferences.</Text>
       {message ? <Card><Text style={styles.message}>{message}</Text></Card> : null}
       <Card>
-        <Text style={styles.cardTitle}>Human / Character</Text>
+        <Text style={styles.cardTitle}>Person profile</Text>
         <Field label="Name" value={active.name} onChangeText={v => updateCharacter({ name: v })} />
         <Field label="Identity" value={active.identity} onChangeText={v => updateCharacter({ identity: v })} multiline />
-        <Field label="Desired person" value={active.desiredPerson ?? ''} onChangeText={v => updateCharacter({ desiredPerson: v })} multiline />
-        <Field label="Daily obligations" value={active.dailyObligations ?? ''} onChangeText={v => updateCharacter({ dailyObligations: v })} multiline />
-        <Field label="Core question" value={active.missionQuestion} onChangeText={v => updateCharacter({ missionQuestion: v })} multiline />
+        <Field label="Person I want to become" value={active.desiredPerson ?? ''} onChangeText={v => updateCharacter({ desiredPerson: v })} multiline />
+        <Field label="Current daily obligations" value={active.dailyObligations ?? ''} onChangeText={v => updateCharacter({ dailyObligations: v })} multiline />
+        <Field label="Guiding question" value={active.missionQuestion} onChangeText={v => updateCharacter({ missionQuestion: v })} multiline />
         <Field label="Values, comma separated" value={active.values.join(', ')} onChangeText={v => updateCharacter({ values: v.split(',').map(x => x.trim()).filter(Boolean) })} />
         <Text style={styles.smallTitle}>Demographics</Text>
         <Field label="Biological sex" value={active.demographics?.biologicalSex ?? 'preferNotToSay'} onChangeText={v => updateDemographics({ biologicalSex: v as NonNullable<Character['demographics']>['biologicalSex'] })} placeholder="female / male / other / preferNotToSay" />
-        <Button title={`${active.demographics?.showWomenHealth ? '✓ ' : ''}Show women's health module`} onPress={() => updateDemographics({ showWomenHealth: !active.demographics?.showWomenHealth })} />
-        <Text style={styles.note}>Health constraints are edited in the Health tab and used by the planner when enabled.</Text>
-        <Button title="Add another human/character" onPress={() => setData({ ...data, characters: [...data.characters, newCharacter()] })} />
+        <Button title={`${active.demographics?.showWomenHealth ? '✓ ' : ''}Show women’s health tool`} onPress={() => updateDemographics({ showWomenHealth: !active.demographics?.showWomenHealth })} />
+        <Text style={styles.note}>Health preferences and constraints can be edited in the Health tool and considered when planning habits.</Text>
+        <Button title="Add another profile" onPress={() => setData({ ...data, characters: [...data.characters, newCharacter()] })} />
       </Card>
       <Card>
         <Text style={styles.cardTitle}>Integrations</Text>

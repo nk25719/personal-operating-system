@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0 - 2026-06-28
+
+- Added a visible Tasks tab for creating, editing, completing, and removing to-dos.
+- Added a visible Profile tab for identity, demographics, daily obligations, and personal language settings.
+- Added customizable rotating personal prompts so POS can speak in a warmer, more human way.
+- Replaced “this human” language with second-person user-facing language.
+- Updated app/package version to 1.0.0.
+- Kept optional modules out of the main flow while preserving them under More.
+- Validated TypeScript successfully.
+
+## 0.1.1
+
+- Polished the user-facing copy to feel warmer and less author-oriented.
+- Refined the Today screen around one gentle next step, daily essentials, and optional tools.
+- Improved visual styling for cards, buttons, checklist rows, and tab colors.
+- Added web runtime dependencies and aligned Expo SDK package versions in package.json.
+
 ## 0.1.0 - 2026-06-28
 
 ### Added

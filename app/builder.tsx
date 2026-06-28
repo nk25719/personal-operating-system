@@ -31,20 +31,20 @@ export default function BuilderScreen() {
   const applyPlan = async () => {
     if (!preview) return;
     await setData(applyGeneratedPlan(data, preview));
-    Alert.alert('POS updated', 'The generated schedule, habits, projects, and icon research were added.');
+    Alert.alert('Plan updated', 'The generated schedule, habits, projects, and icon research were added.');
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Identity Builder</Text>
-      <Text style={styles.subtitle}>Tell the POS who the human wants to become and what obligations they already have. It will tailor a schedule, habits, projects, and icon research prompts.</Text>
+      <Text style={styles.subtitle}>Describe who you want to become and what your real life already requires. POS will suggest a rhythm, habits, projects, and role-model research prompts.</Text>
 
       <Card>
         <Text style={styles.cardTitle}>1. Desired Person</Text>
         <Field label="Who do you want to become?" value={active.desiredPerson ?? ''} onChangeText={v => updateCharacter({ desiredPerson: v })} multiline placeholder="Example: A strong biomedical engineer who publishes research, builds useful medical devices, speaks German, stays healthy, and lives independently." />
         <Field label="Daily obligations" value={active.dailyObligations ?? ''} onChangeText={v => updateCharacter({ dailyObligations: v })} multiline placeholder="Example: Work 8-5 Monday-Friday. Volunteer 7-10 PM. Weekend gym/pool. Weekly necessities check. Monthly shopping." />
         <Field label="Values, comma separated" value={active.values.join(', ')} onChangeText={v => updateCharacter({ values: v.split(',').map(x => x.trim()).filter(Boolean) })} />
-        <Button title={busy ? 'Building...' : 'Generate tailored POS plan'} onPress={createPreview} />
+        <Button title={busy ? 'Building...' : 'Create my tailored plan'} onPress={createPreview} />
       </Card>
 
       {preview ? (
@@ -76,7 +76,7 @@ export default function BuilderScreen() {
               </View>
             ))}
           </Card>
-          <Button title="Apply this plan to my POS" onPress={applyPlan} />
+          <Button title="Use this plan" onPress={applyPlan} />
         </>
       ) : null}
     </ScrollView>
