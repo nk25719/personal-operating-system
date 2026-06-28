@@ -1,0 +1,165 @@
+export type Character = {
+  id: string;
+  name: string;
+  identity: string;
+  desiredPerson?: string;
+  dailyObligations?: string;
+  missionQuestion: string;
+  values: string[];
+  demographics?: Demographics;
+  healthProfile?: HealthProfile;
+  environmentProfile?: EnvironmentProfile;
+};
+
+export type RoutineItem = {
+  id: string;
+  time: string;
+  title: string;
+  category: 'Body' | 'Mind' | 'Language' | 'Reading' | 'Work' | 'Service' | 'Home' | 'Learning' | 'Rest';
+};
+
+export type Habit = {
+  id: string;
+  name: string;
+  frequency: string;
+  minimum: string;
+  why: string;
+  reminderTime?: string;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  area: string;
+  status: 'Active' | 'Paused' | 'Done';
+  nextAction: string;
+  why: string;
+  progress: number;
+};
+
+export type LearningTopic = {
+  id: string;
+  name: string;
+  day: string;
+  nextAction: string;
+  resources: string[];
+};
+
+export type IconResearchItem = {
+  id: string;
+  name: string;
+  domain: string;
+  whyRelevant: string;
+  habitsToModel: string[];
+  searchQueries: string[];
+};
+
+export type Demographics = {
+  biologicalSex?: 'female' | 'male' | 'other' | 'preferNotToSay';
+  showWomenHealth?: boolean;
+};
+
+export type HealthProfile = {
+  enabled: boolean;
+  medicalConditions: string;
+  allergies: string;
+  physicalLimitations: string;
+  medications: string;
+  pregnancyStatus?: 'notPregnant' | 'pregnant' | 'postpartum' | 'trying' | 'preferNotToSay';
+  sleepIssues: string;
+  dietaryPreferences: string;
+  mentalHealthConsiderations: string;
+  painOrEnergyNotes: string;
+  clinicianGuidance: string;
+  habitIntensity: 'gentle' | 'moderate' | 'ambitious';
+  showHealthDisclaimer: boolean;
+};
+
+export type EnvironmentProfile = {
+  enabled: boolean;
+  lifePurpose: string;
+  futureSelfStatement: string;
+  integrityDefinition: string;
+  valuesToProtect: string[];
+  desiredEnvironments: string;
+  environmentsToAvoid: string;
+  desiredPeople: string;
+  peopleToLimit: string;
+  experiencesToSeek: string;
+  experiencesToAvoid: string;
+  weeklyEnvironmentReview: string;
+  integrityScoreMode: 'gentle' | 'strict';
+};
+
+export type WomenHealthProfile = {
+  enabled: boolean;
+  lastPeriodStart?: string;
+  averageCycleDays: number;
+  averagePeriodDays: number;
+  pregnancyIntent?: 'notNow' | 'maybeLater' | 'trying' | 'preferNotToSay';
+  fertilityPlanningEnabled: boolean;
+  fertilityReferenceAge: number;
+  fertilityReminderText: string;
+  displayMode: 'days' | 'monthsDays' | 'yearsMonthsDays';
+  notes?: string;
+};
+
+export type LifeProfile = {
+  birthDate?: string;
+  expectedEndDate?: string;
+  displayMode: 'hours' | 'daysHours' | 'monthsDaysHours' | 'yearsMonthsDaysHours';
+  reminderText: string;
+};
+
+export type IntegrationSettings = {
+  notionToken: string;
+  notionDatabaseId: string;
+  aiApiKey: string;
+  aiModel: string;
+  calendarName: string;
+  webResearchEndpoint?: string;
+  automationMode?: 'manual' | 'assistive' | 'automatic';
+};
+
+export type ModuleKey =
+  | 'habits'
+  | 'projects'
+  | 'learning'
+  | 'decision'
+  | 'lifeClock'
+  | 'womenHealth'
+  | 'health'
+  | 'environment'
+  | 'builder'
+  | 'ai';
+
+export type ModuleConfig = {
+  key: ModuleKey;
+  title: string;
+  enabled: boolean;
+  purpose: string;
+  route: string;
+};
+
+export type CaptureEntry = {
+  id: string;
+  createdAt: string;
+  text: string;
+  extractedActions: string[];
+  suggestedModule?: ModuleKey;
+};
+
+export type AppData = {
+  activeCharacterId: string;
+  characters: Character[];
+  routine: RoutineItem[];
+  habits: Habit[];
+  projects: Project[];
+  learningTopics: LearningTopic[];
+  iconResearch: IconResearchItem[];
+  lifeProfile: LifeProfile;
+  womenHealth: WomenHealthProfile;
+  integrations: IntegrationSettings;
+  modules: ModuleConfig[];
+  captureInbox: CaptureEntry[];
+};

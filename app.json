@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "POS",
+    "slug": "pos-personal-operating-system",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "pos",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pos.app",
+      "infoPlist": {
+        "NSCalendarsUsageDescription": "POS creates calendar events from your routine when you request it."
+      }
+    },
+    "android": {
+      "package": "com.pos.app",
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-calendar",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "replace-with-eas-project-id"
+      }
+    }
+  }
+}
