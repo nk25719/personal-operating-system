@@ -124,6 +124,17 @@ npm test
 npm run lint
 npx expo-doctor
 ```
+after every app change, before deploying, run:
+
+```bash
+npx expo export --platform web
+firebase deploy
+npx expo-doctor
+```
+script that should be run before every deply: 
+
+npm ci 
+&& npm run build
 
 Manual QA lives in [docs/qa/manual-test-plan.md](docs/qa/manual-test-plan.md). It covers first launch, capture, extracted tasks, habits, agency check, recommendation responses, reviews, export, and restore preview/import.
 
