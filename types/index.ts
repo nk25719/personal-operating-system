@@ -1,9 +1,11 @@
-export type TonePreference = 'warm' | 'direct' | 'reflective' | 'coach' | 'minimal';
+export type TonePreference = 'warm' | 'gentle' | 'direct' | 'practical' | 'reflective' | 'coach' | 'minimal';
 
 export type UserPreferences = {
   preferredName?: string;
   tone: TonePreference;
   rotatingPrompts: string[];
+  onboardingCompleted?: boolean;
+  currentSeason?: string;
 };
 
 export type Character = {
@@ -33,6 +35,8 @@ export type Habit = {
   minimum: string;
   why: string;
   reminderTime?: string;
+  isVisibleToOthers?: boolean;
+  visibleTo?: string[];
 };
 
 export type Task = {
@@ -46,6 +50,75 @@ export type Task = {
   estimatedMinutes?: number;
   projectId?: string;
   alignmentNote?: string;
+};
+
+export type RecommendationAction = {
+  id: 'accept' | 'modify' | 'dismiss' | 'snooze';
+  label: string;
+};
+
+export type Recommendation = {
+  id: string;
+  type: 'schedule_adjustment' | 'habit_recovery' | 'reflection_prompt' | 'knowledge_resurfacing' | 'relationship_checkin' | 'project_next_action';
+  title: string;
+  summary: string;
+  whyItMatters: string;
+  whyToday: string;
+  tinyAction: string;
+  userOverride: string;
+  linkedIdentity?: string;
+  linkedGoal?: string;
+  linkedProject?: string;
+  evidence: string[];
+  confidence: number;
+  assumptions: string[];
+  knowledgeLimits: string[];
+  actions: RecommendationAction[];
+};
+
+export type MotivationNeed = 'autonomy' | 'competence' | 'relatedness';
+
+export type MotivationCheckIn = {
+  autonomy: number;
+  competence: number;
+  relatedness: number;
+  note?: string;
+};
+
+export type MutationEventType =
+  | 'habit.completed'
+  | 'task.created'
+  | 'capture.saved'
+  | 'agency.updated'
+  | 'recommendation.accepted'
+  | 'recommendation.modified'
+  | 'recommendation.dismissed'
+  | 'recommendation.snoozed'
+  | 'connection.done'
+  | 'connection.skipped'
+  | 'data.updated'
+  | 'character.updated'
+  | 'backup.imported';
+
+export type MutationEvent = {
+  id: string;
+  type: MutationEventType;
+  createdAt: string;
+  payload?: Record<string, unknown>;
+};
+
+export type PlannerMemoryResponse = 'accepted' | 'modified' | 'dismissed' | 'snoozed';
+export type PlannerMemoryResult = 'helped' | 'neutral' | 'notHelpful';
+
+export type PlannerMemoryRecord = {
+  id: string;
+  createdAt: string;
+  recommendationId: string;
+  recommendationType?: Recommendation['type'];
+  userIntention: string;
+  suggestedAction: string;
+  userResponse: PlannerMemoryResponse;
+  resultLater?: PlannerMemoryResult;
 };
 
 export type Project = {
@@ -133,9 +206,7 @@ export type LifeProfile = {
 };
 
 export type IntegrationSettings = {
-  notionToken: string;
   notionDatabaseId: string;
-  aiApiKey: string;
   aiModel: string;
   calendarName: string;
   webResearchEndpoint?: string;
@@ -170,6 +241,22 @@ export type CaptureEntry = {
   suggestedModule?: ModuleKey;
 };
 
+export type ConnectedAccount = {
+  id: string;
+  provider: 'gmail';
+  email: string;
+  connectedAt: string;
+  visible: boolean;
+};
+
+export type FriendConnection = {
+  id: string;
+  name: string;
+  email: string;
+  status: 'pending' | 'accepted';
+  sharedHabits: string[];
+};
+
 export type AppData = {
   activeCharacterId: string;
   characters: Character[];
@@ -185,4 +272,6 @@ export type AppData = {
   integrations: IntegrationSettings;
   modules: ModuleConfig[];
   captureInbox: CaptureEntry[];
+  connectedAccounts: ConnectedAccount[];
+  friends: FriendConnection[];
 };

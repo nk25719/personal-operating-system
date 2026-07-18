@@ -121,6 +121,8 @@ export const defaultData: AppData = {
   preferences: {
     preferredName: 'Nagham',
     tone: 'warm',
+    onboardingCompleted: false,
+    currentSeason: '',
     rotatingPrompts: [
       'What would move you closer to the person you are becoming today?',
       'What is one meaningful step toward the life you are building?',
@@ -131,9 +133,7 @@ export const defaultData: AppData = {
     ]
   },
   integrations: {
-    notionToken: '',
     notionDatabaseId: '',
-    aiApiKey: '',
     aiModel: 'gpt-4o-mini',
     calendarName: 'POS',
     webResearchEndpoint: '',
@@ -151,5 +151,7 @@ export const defaultData: AppData = {
     { key: 'builder', title: 'Identity Builder', enabled: false, purpose: 'Regenerate schedules from a conversational profile.', route: '/builder' },
     { key: 'ai', title: 'AI Advisor', enabled: true, purpose: 'Ask for suggestions when tackling a task.', route: '/ai' }
   ],
-  captureInbox: []
+  captureInbox: [],
+  connectedAccounts: [],
+  friends: []
 };

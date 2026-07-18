@@ -1,4 +1,5 @@
 import { AppData, Project } from '../types';
+import { getSecret } from '../utils/secrets';
 
 export function localSuggestion(data: AppData, prompt: string) {
   const active = data.characters.find(c => c.id === data.activeCharacterId) ?? data.characters[0];
@@ -12,7 +13,7 @@ export function localSuggestion(data: AppData, prompt: string) {
 }
 
 export async function getAISuggestion(data: AppData, prompt: string) {
-  const key = data.integrations.aiApiKey.trim();
+  const key = await getSecret('openaiApiKey');
   if (!key) return localSuggestion(data, prompt);
 
   const active = data.characters.find(c => c.id === data.activeCharacterId) ?? data.characters[0];
@@ -34,7 +35,7 @@ export async function getAISuggestion(data: AppData, prompt: string) {
     body: JSON.stringify({
       model: data.integrations.aiModel || 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: 'You are a concise personal operating system advisor. Recommend the next best action, useful habits, subtopics, web search terms, role-model/icon research ideas, and a minimum version. Judge recommendations by whether they move the human closer to the person they are trying to become. Do not be preachy.' },
+        { role: 'system', content: 'You are a concise personal operating system advisor. Preserve agency: support autonomy, competence, and relatedness. Recommend the next best action, useful habits, subtopics, web search terms, role-model/icon research ideas, and a minimum version. Explain why, name assumptions and limits, and avoid pressure, shame, diagnosis, or manipulative engagement.' },
         { role: 'user', content: `Context: ${JSON.stringify(context)}\n\nTask/question: ${prompt}` }
       ]
     })

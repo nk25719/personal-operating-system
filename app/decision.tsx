@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '../components/Card';
+import { SecondaryHeader } from '../components/SecondaryHeader';
 import { useAppData } from '../hooks/useAppData';
 
 function NumberField({ label, value, setValue }: { label: string; value: number; setValue: (n: number) => void }) {
@@ -23,7 +24,7 @@ export default function DecisionScreen() {
   ];
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Decision Center</Text>
+      <SecondaryHeader title="Decision Center" />
       <Text style={styles.subtitle}>{active?.missionQuestion ?? 'Before purchases, outings, commitments, or new projects.'}</Text>
       <Card>
         <TextInput style={styles.titleInput} placeholder="Decision title" value={title} onChangeText={setTitle} />
@@ -34,4 +35,4 @@ export default function DecisionScreen() {
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#f2f2f7' }, content: { padding: 18, paddingTop: 64 }, title: { fontSize: 32, fontWeight: '800' }, subtitle: { color: '#6b7280', marginTop: 6, marginBottom: 16 }, titleInput: { fontSize: 18, borderBottomWidth: 1, borderBottomColor: '#ddd', paddingVertical: 12, marginBottom: 12 }, row: { marginVertical: 10 }, label: { fontSize: 15, fontWeight: '700', marginBottom: 6 }, input: { backgroundColor: '#f2f2f7', borderRadius: 10, padding: 12, fontSize: 18 }, total: { fontSize: 22, fontWeight: '800', marginTop: 16 }, result: { fontSize: 18, marginTop: 8 } });
+const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#f4f1ea' }, content: { padding: 18, paddingTop: 64 }, title: { fontSize: 32, fontWeight: '800', color: '#24322f' }, subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16 }, titleInput: { fontSize: 18, borderBottomWidth: 1, borderBottomColor: '#dde7df', paddingVertical: 12, marginBottom: 12 }, row: { marginVertical: 10 }, label: { fontSize: 15, fontWeight: '700', marginBottom: 6, color: '#3f4a45' }, input: { backgroundColor: '#f4f1ea', borderRadius: 10, padding: 12, fontSize: 18 }, total: { fontSize: 22, fontWeight: '800', marginTop: 16, color: '#24322f' }, result: { fontSize: 18, marginTop: 8, color: '#3f4a45' } });

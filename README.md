@@ -101,7 +101,32 @@ npx expo start
 
 Then press `i` for iOS Simulator or scan with Expo Go.
 
- 
+## Local-First App Status
+
+POS is an Expo / React Native personal operating system for identity-centered planning. It helps a person capture what changed, choose small actions, shape habits and projects, review patterns, and keep recommendations grounded in their values and current season.
+
+The current app is local-first. Core profile data, captures, habits, tasks, projects, review events, and planner memory are stored on the device. OpenAI keys and Notion tokens are stored separately with SecureStore when available, and backup export/import excludes those secrets. There is no backend sync in this version.
+
+## Development
+
+Run the app:
+
+```bash
+npm install
+npx expo start
+```
+
+Run the safety checks:
+
+```bash
+npx tsc --noEmit
+npm test
+npm run lint
+npx expo-doctor
+```
+
+Manual QA lives in [docs/qa/manual-test-plan.md](docs/qa/manual-test-plan.md). It covers first launch, capture, extracted tasks, habits, agency check, recommendation responses, reviews, export, and restore preview/import.
+
 
 ## Roadmap
 

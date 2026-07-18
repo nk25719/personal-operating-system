@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { useAppData } from '../hooks/useAppData';
 import { Character, HealthProfile } from '../types';
@@ -22,19 +23,19 @@ const defaultHealthProfile = (): HealthProfile => ({
 });
 
 export default function HealthScreen() {
-  const { data, setData, loading } = useAppData();
+  const { data, updateCharacter: mutateCharacter, loading } = useAppData();
   if (loading || !data) return null;
   const active = data.characters.find(c => c.id === data.activeCharacterId) ?? data.characters[0];
   const profile = active.healthProfile ?? defaultHealthProfile();
 
-  const updateCharacter = (patch: Partial<Character>) => setData({ ...data, characters: data.characters.map(c => c.id === active.id ? { ...c, ...patch } : c) });
+  const updateCharacter = (patch: Partial<Character>) => mutateCharacter(active.id, patch);
   const updateHealth = (patch: Partial<HealthProfile>) => updateCharacter({ healthProfile: { ...profile, ...patch } });
 
   const constraints = buildConstraintSummary(profile);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Health Profile</Text>
+      <SecondaryHeader title="Health" />
       <Text style={styles.subtitle}>Optional context used to tailor habits and avoid inappropriate suggestions. This is not medical advice.</Text>
 
       <Card>
@@ -95,13 +96,13 @@ function buildConstraintSummary(profile: HealthProfile) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+  container: { flex: 1, backgroundColor: '#f4f1ea' },
   content: { padding: 18, paddingTop: 64, paddingBottom: 40 },
-  title: { fontSize: 32, fontWeight: '800' },
-  subtitle: { color: '#6b7280', marginTop: 6, marginBottom: 16, lineHeight: 20 },
+  title: { fontSize: 32, fontWeight: '800', color: '#24322f' },
+  subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 20 },
   cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 },
-  disclaimer: { color: '#6b7280', lineHeight: 20, marginTop: 12 },
-  rule: { borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingVertical: 10 },
-  ruleTitle: { fontWeight: '800', color: '#111827' },
-  ruleText: { color: '#374151', marginTop: 4, lineHeight: 20 }
+  disclaimer: { color: '#68766f', lineHeight: 20, marginTop: 12 },
+  rule: { borderTopWidth: 1, borderTopColor: '#dde7df', paddingVertical: 10 },
+  ruleTitle: { fontWeight: '800', color: '#24322f' },
+  ruleText: { color: '#3f4a45', marginTop: 4, lineHeight: 20 }
 });

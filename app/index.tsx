@@ -1,127 +1,115 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, Redirect } from 'expo-router';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
-import { ChecklistRow } from '../components/ChecklistRow';
+import { HeaderActions } from '../components/HeaderActions';
+import { Chip, Details } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
-import { getJSON, setJSON } from '../utils/storage';
-import { activeCharacter, alignmentScore, discretionaryTimeEstimate, enabledModules, getNextAction, openTasks, personalPrompt, preferredName, routineWithoutMaintenance, todayStorageKey, topProjects } from '../services/os';
+import { defaultMotivationCheckIn, getMockRecommendations, motivationStorageKey, openTasks, preferredName } from '../services/os';
+import { shouldShowOnboarding } from '../services/onboarding';
+import { isRelationshipCue } from '../services/relationshipCue';
+import { MotivationCheckIn, PlannerMemoryRecord, Recommendation } from '../types';
+import { getJSON, getPlannerMemory } from '../utils/storage';
+import { theme } from '../constants/theme';
 
-export default function TodayScreen() {
+export default function HomeScreen() {
   const { data, loading } = useAppData();
-  const [done, setDone] = useState<Record<string, boolean>>({});
-  const storageKey = todayStorageKey();
+  const [motivation, setMotivation] = useState<MotivationCheckIn>(defaultMotivationCheckIn());
+  const [plannerMemory, setPlannerMemory] = useState<PlannerMemoryRecord[]>([]);
 
-  useEffect(() => { getJSON(storageKey, {}).then(setDone); }, [storageKey]);
+  useEffect(() => { getJSON(motivationStorageKey(), defaultMotivationCheckIn()).then(setMotivation); }, []);
+  useEffect(() => { getPlannerMemory().then(setPlannerMemory); }, []);
+
+  const recommendations = useMemo(() => (
+    data ? getMockRecommendations(data, motivation, plannerMemory).filter(item => !isRelationshipCue(item)) : []
+  ), [data, motivation, plannerMemory]);
+
   if (loading || !data) return null;
+  if (shouldShowOnboarding(data)) return <Redirect href="/onboarding" />;
 
-  const active = activeCharacter(data);
-  const routine = routineWithoutMaintenance(data.routine);
-  const completed = routine.filter(item => done[item.id]).length;
-  const next = getNextAction(data, done);
-  const projects = topProjects(data);
-  const modules = enabledModules(data);
-  const firstName = preferredName(data);
-  const prompt = personalPrompt(data);
-  const tasks = openTasks(data).slice(0, 3);
-
-  const toggle = async (id: string) => {
-    const nextDone = { ...done, [id]: !done[id] };
-    setDone(nextDone);
-    await setJSON(storageKey, nextDone);
-  };
+  const task = openTasks(data)[0];
+  const adjustment = recommendations[0];
+  const reminder = getUpcomingReminder(data.routine);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.hero}>
-        <Text style={styles.eyebrow}>POS</Text>
-        <Text style={styles.title}>Good day, {firstName}</Text>
-        <Text style={styles.subtitle}>{prompt}</Text>
+      <View style={styles.topRow}>
+        <View style={styles.titleBlock}>
+          <Text style={styles.eyebrow}>Home</Text>
+          <Text style={styles.title}>Hello {preferredName(data)}</Text>
+        </View>
+        <HeaderActions />
+      </View>
+      <View style={styles.chips}>
+        <Chip label="What needs care now" />
+        <Chip label="Local-first" />
       </View>
 
       <Card variant="highlight">
-        <Text style={styles.cardLabel}>Your next gentle step</Text>
-        <Text style={styles.next}>{next.label}</Text>
-        <Text style={styles.muted}>{next.detail} · {next.source}</Text>
         <View style={styles.row}>
-          <Link href="/capture" asChild><Button title="Add a quick note" onPress={() => {}} /></Link>
-          <Link href="/tasks" asChild><Button title="Edit tasks" variant="secondary" onPress={() => {}} /></Link>
-        </View>
-      </Card>
-
-      <Card>
-        <View style={styles.metricRow}>
-          <View style={styles.metric}><Text style={styles.metricValue}>{completed}/{routine.length}</Text><Text style={styles.muted}>today's rhythm</Text></View>
-          <View style={styles.metric}><Text style={styles.metricValue}>{alignmentScore(data)}%</Text><Text style={styles.muted}>alignment</Text></View>
-          <View style={styles.metric}><Text style={styles.metricValue}>{discretionaryTimeEstimate(data)}</Text><Text style={styles.muted}>open time</Text></View>
-        </View>
-      </Card>
-
-
-      <Card>
-        <Text style={styles.cardTitle}>Tasks that matter</Text>
-        <Text style={styles.sectionHint}>Keep this list honest and small. Edit it whenever your real life changes.</Text>
-        {tasks.length ? tasks.map(task => (
-          <View key={task.id} style={styles.taskRow}>
-            <View style={styles.taskBadge}><Text style={styles.taskBadgeText}>{task.priority}</Text></View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.projectName}>{task.title}</Text>
-              <Text style={styles.muted}>{task.area}{task.estimatedMinutes ? ` · ${task.estimatedMinutes} min` : ''}</Text>
-              {task.alignmentNote ? <Text style={styles.body}>{task.alignmentNote}</Text> : null}
-            </View>
+          <View style={styles.icon}><Text style={styles.iconText}>!</Text></View>
+          <View style={styles.copy}>
+            <Text style={styles.cardLabel}>Needs attention now</Text>
+            <Text style={styles.cardTitle}>{task?.title ?? 'No urgent task.'}</Text>
+            <Text style={styles.muted}>{task ? `${task.priority} · ${task.estimatedMinutes ?? 10} min` : 'Keep the day light.'}</Text>
           </View>
-        )) : <Text style={styles.body}>No open tasks. Add one when something genuinely needs your attention.</Text>}
-        <View style={styles.row}><Link href="/tasks" asChild><Button title="Open tasks" onPress={() => {}} /></Link></View>
+        </View>
+        <Link href="/today" asChild><Button title="Open Today" /></Link>
       </Card>
 
       <Card>
-        <Text style={styles.cardTitle}>Today’s essentials</Text>
-        <Text style={styles.sectionHint}>Small actions count. Check off only what genuinely happened.</Text>
-        {routine.map(item => <ChecklistRow key={item.id} time={item.time} title={item.title} done={!!done[item.id]} onPress={() => toggle(item.id)} />)}
-      </Card>
-
-      <Card variant="soft">
-        <Text style={styles.cardTitle}>Active outcomes</Text>
-        {projects.map(project => (
-          <View key={project.id} style={styles.projectRow}>
-            <Text style={styles.projectName}>{project.name}</Text>
-            <Text style={styles.body}>{project.nextAction}</Text>
-            <Text style={styles.muted}>{project.progress}% · {project.why}</Text>
+        <View style={styles.row}>
+          <View style={styles.icon}><Text style={styles.iconText}>+</Text></View>
+          <View style={styles.copy}>
+            <Text style={styles.cardLabel}>Suggested adjustment</Text>
+            <Text style={styles.cardTitle}>{adjustment?.title ?? 'Nothing to adjust.'}</Text>
+            <Text style={styles.body}>{adjustment?.tinyAction ?? 'Stay with the next small step.'}</Text>
           </View>
-        ))}
+        </View>
+        {adjustment ? (
+          <Details title="Details">
+            <Text style={styles.body}>{getShortWhy(adjustment)}</Text>
+          </Details>
+        ) : null}
       </Card>
 
       <Card>
-        <Text style={styles.cardTitle}>Your tools</Text>
-        <Text style={styles.body}>{modules.map(m => m.title).join(' · ') || 'Your day is ready. You can add tools whenever they become useful.'}</Text>
-        <Text style={styles.note}>POS works best when it feels light: capture what changed, edit what matters, and keep the rest out of your way.</Text>
+        <View style={styles.row}>
+          <View style={styles.icon}><Text style={styles.iconText}>•</Text></View>
+          <View style={styles.copy}>
+            <Text style={styles.cardLabel}>Upcoming</Text>
+            <Text style={styles.cardTitle}>{reminder.title}</Text>
+            <Text style={styles.muted}>{reminder.time}</Text>
+          </View>
+        </View>
       </Card>
     </ScrollView>
   );
 }
 
+function getUpcomingReminder(routine: { time: string; title: string }[]) {
+  return routine.find(item => /work|volunteer|leave/i.test(item.title)) ?? { title: 'No conflict found.', time: 'Keep moving gently.' };
+}
+
+function getShortWhy(recommendation: Recommendation) {
+  return recommendation.whyToday || recommendation.summary;
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff7ed' },
-  content: { padding: 18, paddingTop: 58, paddingBottom: 44 },
-  hero: { marginBottom: 16 },
-  eyebrow: { color: '#7c3aed', fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.4 },
-  title: { fontSize: 38, fontWeight: '900', color: '#2f2546', marginTop: 4, letterSpacing: -0.8 },
-  subtitle: { fontSize: 16, color: '#6b4f3f', marginTop: 10, lineHeight: 24 },
-  cardLabel: { color: '#9a3412', fontWeight: '900', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12 },
-  next: { fontSize: 27, fontWeight: '900', color: '#2f2546', lineHeight: 34 },
-  cardTitle: { fontSize: 22, fontWeight: '900', marginBottom: 8, color: '#2f2546' },
-  sectionHint: { color: '#7c6f64', lineHeight: 20, marginBottom: 4 },
-  muted: { color: '#7c6f64', lineHeight: 20 },
-  body: { fontSize: 15, color: '#4b3f38', lineHeight: 22 },
-  row: { flexDirection: 'row', gap: 10, marginTop: 16, flexWrap: 'wrap' },
-  metricRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
-  metric: { flex: 1, backgroundColor: '#fff7ed', borderRadius: 18, padding: 12 },
-  metricValue: { fontSize: 24, fontWeight: '900', color: '#5b21b6' },
-  projectRow: { borderTopWidth: 1, borderTopColor: '#e9d5ff', paddingTop: 10, marginTop: 10 },
-  projectName: { fontSize: 17, fontWeight: '900', color: '#2f2546', marginBottom: 4 },
-  taskRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, borderTopWidth: 1, borderTopColor: '#f1e4d0', paddingTop: 12, marginTop: 12 },
-  taskBadge: { backgroundColor: '#fef3c7', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
-  taskBadgeText: { color: '#92400e', fontWeight: '900', fontSize: 12 },
-  note: { color: '#7c6f64', marginTop: 10, lineHeight: 21 }
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: 16, paddingTop: 56, paddingBottom: 64 },
+  topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
+  titleBlock: { flex: 1 },
+  eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 11 },
+  title: { fontSize: 34, fontWeight: '900', color: theme.colors.text, marginTop: 6, lineHeight: 38 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, marginBottom: 16 },
+  row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  iconText: { color: theme.colors.primary, fontSize: 20, fontWeight: '900' },
+  copy: { flex: 1 },
+  cardLabel: { color: theme.colors.accent, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12, marginBottom: 5 },
+  cardTitle: { fontSize: 20, fontWeight: '900', color: theme.colors.text, lineHeight: 25 },
+  body: { fontSize: 15, color: theme.colors.text, lineHeight: 21, marginTop: 4 },
+  muted: { color: theme.colors.textMuted, lineHeight: 20, marginTop: 4 }
 });

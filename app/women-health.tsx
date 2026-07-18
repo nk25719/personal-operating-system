@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { useAppData } from '../hooks/useAppData';
 import { WomenHealthProfile } from '../types';
@@ -90,7 +91,7 @@ function getCycleInfo(lastStart: Date | null, cycleDays: number, periodDays: num
 }
 
 export default function WomenHealthScreen() {
-  const { data, setData, loading } = useAppData();
+  const { data, updateData, updateCharacter, loading } = useAppData();
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -112,15 +113,12 @@ export default function WomenHealthScreen() {
 
   if (loading || !data || !calc || !active) return null;
 
-  const update = (patch: Partial<WomenHealthProfile>) => setData({ ...data, womenHealth: { ...data.womenHealth, ...patch } });
-  const updateCharacterDemographics = (patch: Partial<NonNullable<typeof active.demographics>>) => setData({
-    ...data,
-    characters: data.characters.map(c => c.id === active.id ? { ...c, demographics: { ...c.demographics, ...patch } } : c)
-  });
+  const update = (patch: Partial<WomenHealthProfile>) => updateData(current => ({ ...current, womenHealth: { ...current.womenHealth, ...patch } }));
+  const updateCharacterDemographics = (patch: Partial<NonNullable<typeof active.demographics>>) => updateCharacter(active.id, { demographics: { ...active.demographics, ...patch } });
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Women's Health</Text>
+      <SecondaryHeader title="Women Health" />
       <Text style={styles.subtitle}>Optional cycle and family-planning awareness for humans who choose to display it.</Text>
 
       <Card>
@@ -189,14 +187,14 @@ export default function WomenHealthScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+  container: { flex: 1, backgroundColor: '#f4f1ea' },
   content: { padding: 18, paddingTop: 64 },
-  title: { fontSize: 32, fontWeight: '800' },
-  subtitle: { color: '#6b7280', marginTop: 6, marginBottom: 16, lineHeight: 21 },
+  title: { fontSize: 32, fontWeight: '800', color: '#24322f' },
+  subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 21 },
   cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 },
-  note: { color: '#374151', fontSize: 15, lineHeight: 22, marginBottom: 8 },
-  big: { fontSize: 26, fontWeight: '900', color: '#111827', lineHeight: 34, marginBottom: 8 },
-  line: { fontSize: 16, color: '#111827', marginTop: 5 },
-  summaryBox: { backgroundColor: '#f9fafb', borderRadius: 14, padding: 14, marginTop: 10 },
-  disclaimer: { color: '#6b7280', fontSize: 13, lineHeight: 19, marginTop: 8 }
+  note: { color: '#3f4a45', fontSize: 15, lineHeight: 22, marginBottom: 8 },
+  big: { fontSize: 26, fontWeight: '900', color: '#24322f', lineHeight: 34, marginBottom: 8 },
+  line: { fontSize: 16, color: '#24322f', marginTop: 5 },
+  summaryBox: { backgroundColor: '#fffdf8', borderRadius: 14, padding: 14, marginTop: 10 },
+  disclaimer: { color: '#68766f', fontSize: 13, lineHeight: 19, marginTop: 8 }
 });

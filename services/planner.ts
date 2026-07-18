@@ -1,4 +1,6 @@
 import { AppData, Habit, HealthProfile, IconResearchItem, Project, RoutineItem } from '../types';
+import { getSecret } from '../utils/secrets';
+import { PlanningContractInput } from './recommendationContract';
 
 const lower = (v: string) => v.toLowerCase();
 const id = (prefix: string) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -96,7 +98,7 @@ function buildHealthAwareHabits(health: HealthProfile): Habit[] {
 
 export async function generatePlan(data: AppData) {
   const active = data.characters.find(c => c.id === data.activeCharacterId) ?? data.characters[0];
-  const key = data.integrations.aiApiKey.trim();
+  const key = await getSecret('openaiApiKey');
   const local = buildLocalPlan(data);
   if (!key) return local;
 
@@ -106,8 +108,9 @@ export async function generatePlan(data: AppData) {
     body: JSON.stringify({
       model: data.integrations.aiModel || 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: 'Generate a practical personal operating system plan. Return only valid JSON with keys routine, habits, projects, icons. Use the exact fields from this TypeScript shape: routine[{time,title,category}], habits[{name,frequency,minimum,why,reminderTime}], projects[{name,area,status,nextAction,why,progress}], icons[{name,domain,whyRelevant,habitsToModel,searchQueries}]. Categories must be Body, Mind, Language, Reading, Work, Service, Home, Learning, Rest. Status Active/Paused/Done. Suggest role-model icons and web search queries; do not invent precise facts.' },
-        { role: 'user', content: `Person: ${active.name}\nIdentity: ${active.identity}\nWanted person: ${active.desiredPerson}\nObligations: ${active.dailyObligations}\nValues: ${active.values.join(', ')}
+        { role: 'system', content: 'Generate a practical personal operating system plan that supports autonomy, competence, and relatedness. Return only valid JSON with keys routine, habits, projects, icons. Use the exact fields from this TypeScript shape: routine[{time,title,category}], habits[{name,frequency,minimum,why,reminderTime}], projects[{name,area,status,nextAction,why,progress}], icons[{name,domain,whyRelevant,habitsToModel,searchQueries}]. Categories must be Body, Mind, Language, Reading, Work, Service, Home, Learning, Rest. Status Active/Paused/Done. Prefer tiny repeatable actions, stable cues, attainable exemplars, and non-shaming recovery. Suggest role-model icons and web search queries; do not invent precise facts.' },
+        { role: 'user', content: `Planning contract: ${JSON.stringify(getPlanningContractInput(data, 'ai_json'))}
+Person: ${active.name}\nIdentity: ${active.identity}\nWanted person: ${active.desiredPerson}\nObligations: ${active.dailyObligations}\nValues: ${active.values.join(', ')}
 Health enabled: ${active.healthProfile?.enabled ? 'yes' : 'no'}
 Health context: ${active.healthProfile ? JSON.stringify(active.healthProfile) : 'none'}
 Environment and integrity context: ${active.environmentProfile ? JSON.stringify(active.environmentProfile) : 'none'}
@@ -138,5 +141,18 @@ export function applyGeneratedPlan(data: AppData, plan: ReturnType<typeof buildL
     habits: [...data.habits, ...plan.habits],
     projects: [...data.projects, ...plan.projects],
     iconResearch: [...(data.iconResearch ?? []), ...plan.icons]
+  };
+}
+
+export function getPlanningContractInput(data: AppData, outputMode: PlanningContractInput['outputMode'] = 'local_fallback'): PlanningContractInput {
+  const active = data.characters.find(c => c.id === data.activeCharacterId) ?? data.characters[0];
+  return {
+    identity: active.identity,
+    desiredPerson: active.desiredPerson,
+    obligations: active.dailyObligations,
+    values: active.values,
+    healthContextEnabled: !!active.healthProfile?.enabled,
+    environmentContextEnabled: !!active.environmentProfile?.enabled,
+    outputMode
   };
 }

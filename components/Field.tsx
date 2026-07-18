@@ -8,4 +8,9 @@ export function Field({ label, value, onChangeText, placeholder, multiline = fal
     </View>
   );
 }
-const styles = StyleSheet.create({ wrap: { marginBottom: 10 }, label: { fontWeight: '700', marginBottom: 5, color: '#374151' }, input: { backgroundColor: '#f2f2f7', borderRadius: 12, padding: 12, fontSize: 16 }, multiline: { minHeight: 86, textAlignVertical: 'top' } });
+const styles = StyleSheet.create({
+  wrap: { marginBottom: 14 },
+  label: { fontWeight: '700', marginBottom: 8, color: '#3f4a45', fontSize: 15 },
+  input: { backgroundColor: '#f4f1ea', borderRadius: 12, padding: 14, fontSize: 16, minHeight: 44 },
+  multiline: { minHeight: 110, textAlignVertical: 'top' }
+});

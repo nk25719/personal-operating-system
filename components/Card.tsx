@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
+import { theme } from '../constants/theme';
 
 type CardProps = PropsWithChildren<{ variant?: 'default' | 'soft' | 'highlight'; style?: ViewStyle }>;
 
@@ -9,24 +10,25 @@ export function Card({ children, variant = 'default', style }: CardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fffaf3',
-    borderRadius: 24,
-    padding: 18,
-    marginBottom: 14,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.card,
+    padding: theme.spacing.card,
+    marginBottom: 12,
+    marginHorizontal: 0,
     borderWidth: 1,
-    borderColor: '#f1e4d0',
-    shadowColor: '#7c2d12',
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 3
+    borderColor: theme.colors.border,
+    shadowColor: theme.colors.accent,
+    shadowOpacity: 0.045,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 1
   },
   soft: {
-    backgroundColor: '#f7f0ff',
-    borderColor: '#e9d5ff'
+    backgroundColor: theme.colors.surfaceSoft,
+    borderColor: theme.colors.primarySoft
   },
   highlight: {
-    backgroundColor: '#fff7ed',
-    borderColor: '#fed7aa'
+    backgroundColor: theme.colors.accentSoft,
+    borderColor: theme.colors.borderSoft
   }
 });

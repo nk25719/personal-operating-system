@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { useAppData } from '../hooks/useAppData';
 import { LifeProfile } from '../types';
@@ -63,7 +64,7 @@ function percent(start: Date, now: Date, end?: Date | null) {
 }
 
 export default function LifeClockScreen() {
-  const { data, setData, loading } = useAppData();
+  const { data, updateData, loading } = useAppData();
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -87,7 +88,7 @@ export default function LifeClockScreen() {
 
   if (loading || !data || !calc) return null;
 
-  const update = (patch: Partial<LifeProfile>) => setData({ ...data, lifeProfile: { ...data.lifeProfile, ...patch } });
+  const update = (patch: Partial<LifeProfile>) => updateData(current => ({ ...current, lifeProfile: { ...current.lifeProfile, ...patch } }));
   const modeButtons: { label: string; mode: LifeProfile['displayMode'] }[] = [
     { label: 'Hours', mode: 'hours' },
     { label: 'Days + hours', mode: 'daysHours' },
@@ -97,7 +98,7 @@ export default function LifeClockScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Life Clock</Text>
+      <SecondaryHeader title="Life Clock" />
       <Text style={styles.subtitle}>A clear, editable reminder that time is a resource to invest intentionally.</Text>
 
       <Card>
@@ -135,14 +136,14 @@ export default function LifeClockScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+  container: { flex: 1, backgroundColor: '#f4f1ea' },
   content: { padding: 18, paddingTop: 64 },
-  title: { fontSize: 32, fontWeight: '800' },
-  subtitle: { color: '#6b7280', marginTop: 6, marginBottom: 16, lineHeight: 21 },
+  title: { fontSize: 32, fontWeight: '800', color: '#24322f' },
+  subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 21 },
   cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 },
-  big: { fontSize: 30, fontWeight: '900', color: '#111827', lineHeight: 38 },
-  note: { color: '#374151', marginTop: 12, fontSize: 16, lineHeight: 23 },
-  progressWrap: { marginTop: 16, height: 34, borderRadius: 17, backgroundColor: '#e5e7eb', overflow: 'hidden', justifyContent: 'center' },
-  progressFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: '#111827' },
-  progressText: { textAlign: 'center', fontWeight: '800', color: '#111827' }
+  big: { fontSize: 30, fontWeight: '900', color: '#24322f', lineHeight: 38 },
+  note: { color: '#3f4a45', marginTop: 12, fontSize: 16, lineHeight: 23 },
+  progressWrap: { marginTop: 16, height: 34, borderRadius: 17, backgroundColor: '#dde7df', overflow: 'hidden', justifyContent: 'center' },
+  progressFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: '#24322f' },
+  progressText: { textAlign: 'center', fontWeight: '800', color: '#24322f' }
 });

@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { useAppData } from '../hooks/useAppData';
 import { Character, EnvironmentProfile } from '../types';
@@ -24,23 +25,23 @@ const defaultEnvironmentProfile = (): EnvironmentProfile => ({
 });
 
 export default function EnvironmentScreen() {
-  const { data, setData, loading } = useAppData();
+  const { data, updateCharacter: mutateCharacter, loading } = useAppData();
   const [scores, setScores] = useState([0, 0, 0, 0, 0, 0]);
 
-  if (loading || !data) return null;
-  const active = data.characters.find(c => c.id === data.activeCharacterId) ?? data.characters[0];
-  const profile = active.environmentProfile ?? defaultEnvironmentProfile();
-
-  const updateCharacter = (patch: Partial<Character>) => setData({ ...data, characters: data.characters.map(c => c.id === active.id ? { ...c, ...patch } : c) });
-  const updateProfile = (patch: Partial<EnvironmentProfile>) => updateCharacter({ environmentProfile: { ...profile, ...patch } });
+  const active = data?.characters.find(c => c.id === data.activeCharacterId) ?? data?.characters[0];
+  const profile = active?.environmentProfile ?? defaultEnvironmentProfile();
 
   const total = useMemo(() => scores.reduce((a, b) => a + b, 0), [scores]);
   const integrityLabel = total >= 25 ? 'Strong alignment' : total >= 18 ? 'Mostly aligned' : total >= 10 ? 'Needs attention' : 'Misaligned today';
   const environmentRules = buildEnvironmentRules(profile);
 
+  if (loading || !data || !active) return null;
+  const updateCharacter = (patch: Partial<Character>) => mutateCharacter(active.id, patch);
+  const updateProfile = (patch: Partial<EnvironmentProfile>) => updateCharacter({ environmentProfile: { ...profile, ...patch } });
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Environment & Integrity</Text>
+      <SecondaryHeader title="Environment" />
       <Text style={styles.subtitle}>Design the social spaces, experiences, and integrity standards that shape the human into their future self.</Text>
 
       <Card>
@@ -122,19 +123,19 @@ function buildEnvironmentRules(profile: EnvironmentProfile) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+  container: { flex: 1, backgroundColor: '#f4f1ea' },
   content: { padding: 18, paddingTop: 64, paddingBottom: 40 },
-  title: { fontSize: 32, fontWeight: '800' },
-  subtitle: { color: '#6b7280', marginTop: 6, marginBottom: 16, lineHeight: 20 },
+  title: { fontSize: 32, fontWeight: '800', color: '#24322f' },
+  subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 20 },
   cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 },
-  quote: { fontSize: 18, fontWeight: '700', lineHeight: 26, marginBottom: 12, color: '#111827' },
-  note: { color: '#6b7280', lineHeight: 20, marginBottom: 10 },
+  quote: { fontSize: 18, fontWeight: '700', lineHeight: 26, marginBottom: 12, color: '#24322f' },
+  note: { color: '#68766f', lineHeight: 20, marginBottom: 10 },
   scoreRow: { marginVertical: 8 },
   scoreLabel: { fontSize: 15, fontWeight: '700', marginBottom: 6 },
-  scoreInput: { backgroundColor: '#f2f2f7', borderRadius: 10, padding: 12, fontSize: 18 },
-  total: { fontSize: 22, fontWeight: '800', marginTop: 16 },
-  result: { fontSize: 18, marginTop: 8 },
-  rule: { borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingVertical: 10 },
-  ruleTitle: { fontWeight: '800', color: '#111827' },
-  ruleText: { color: '#374151', marginTop: 4, lineHeight: 20 }
+  scoreInput: { backgroundColor: '#f4f1ea', borderRadius: 10, padding: 12, fontSize: 18 },
+  total: { fontSize: 22, fontWeight: '800', marginTop: 16, color: '#24322f' },
+  result: { fontSize: 18, marginTop: 8, color: '#3f4a45' },
+  rule: { borderTopWidth: 1, borderTopColor: '#dde7df', paddingVertical: 10 },
+  ruleTitle: { fontWeight: '800', color: '#24322f' },
+  ruleText: { color: '#3f4a45', marginTop: 4, lineHeight: 20 }
 });

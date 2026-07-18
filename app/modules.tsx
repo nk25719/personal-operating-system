@@ -1,54 +1,105 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
-import { Button } from '../components/Button';
+import { Ionicons } from '@expo/vector-icons';
 import { Card } from '../components/Card';
-import { useAppData } from '../hooks/useAppData';
-import { ModuleConfig } from '../types';
+import { HeaderActions } from '../components/HeaderActions';
+import { Chip } from '../components/Visual';
+import { theme } from '../constants/theme';
+
+const groups = [
+  {
+    title: 'Planning',
+    items: [
+      { title: 'Plan', subtitle: 'Organize the day.', route: '/plan', icon: 'calendar' },
+      { title: 'Tasks', subtitle: 'Next actions.', route: '/tasks', icon: 'checkbox' },
+      { title: 'Projects', subtitle: 'Active outcomes.', route: '/projects', icon: 'folder-open' },
+      { title: 'Decisions', subtitle: 'Choice check.', route: '/decision', icon: 'git-branch' }
+    ]
+  },
+  {
+    title: 'Growth',
+    items: [
+      { title: 'Habits', subtitle: 'Steady practices.', route: '/habits', icon: 'repeat' },
+      { title: 'Builder', subtitle: 'Shape POS.', route: '/builder', icon: 'construct' },
+      { title: 'AI', subtitle: 'Optional advisor.', route: '/ai', icon: 'sparkles' }
+    ]
+  },
+  {
+    title: 'Knowledge',
+    items: [
+      { title: 'Learning', subtitle: 'Study notes.', route: '/learning', icon: 'book' },
+      { title: 'Capture', subtitle: 'Save a thought.', route: '/capture', icon: 'add-circle' }
+    ]
+  },
+  {
+    title: 'Wellbeing',
+    items: [
+      { title: 'Health', subtitle: 'Body context.', route: '/health', icon: 'heart' },
+      { title: 'Women’s Health', subtitle: 'Cycle notes.', route: '/women-health', icon: 'moon' },
+      { title: 'Environment', subtitle: 'Spaces and values.', route: '/environment', icon: 'leaf' }
+    ]
+  },
+  {
+    title: 'Relationships',
+    items: [
+      { title: 'Relationships', subtitle: 'Connection care.', route: '/relationships', icon: 'people' }
+    ]
+  }
+] as const;
 
 export default function ModulesScreen() {
-  const { data, setData, loading } = useAppData();
-  if (loading || !data) return null;
-
-  const toggle = (module: ModuleConfig) => {
-    setData({ ...data, modules: data.modules.map(m => m.key === module.key ? { ...m, enabled: !m.enabled } : m) });
-  };
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Modules</Text>
-      <Text style={styles.subtitle}>Choose the tools that support your current season. Everything else can stay tucked away.</Text>
-      <Card>
-        <Text style={styles.cardTitle}>Daily simplicity</Text>
-        <Text style={styles.body}>Your daily check-in should feel light. Turn on a module when it helps you make a better choice, learn something useful, or care for yourself.</Text>
-      </Card>
-      {(data.modules ?? []).map(module => (
-        <Card key={module.key}>
-          <View style={styles.headerRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.moduleTitle}>{module.title}</Text>
-              <Text style={styles.body}>{module.purpose}</Text>
-              <Text style={styles.status}>{module.enabled ? 'Add to my toolsd' : 'Available when needed'}</Text>
-            </View>
+      <View style={styles.topRow}>
+        <View style={styles.titleBlock}>
+          <Text style={styles.eyebrow}>Modules</Text>
+          <Text style={styles.title}>More tools</Text>
+        </View>
+        <HeaderActions />
+      </View>
+      <View style={styles.chips}>
+        <Chip label="One tap away" />
+        <Chip label="Local-first" />
+      </View>
+
+      {groups.map(group => (
+        <View key={group.title} style={styles.group}>
+          <Text style={styles.sectionTitle}>{group.title}</Text>
+          <View style={styles.grid}>
+            {group.items.map(item => (
+              <Link key={item.route} href={item.route as any} asChild>
+                <Pressable accessibilityRole="button" style={styles.shortcut}>
+                  <Card style={styles.cardFill}>
+                    <View style={styles.icon}>
+                      <Ionicons name={item.icon} size={21} color={theme.colors.primary} />
+                    </View>
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.subtitle}>{item.subtitle}</Text>
+                  </Card>
+                </Pressable>
+              </Link>
+            ))}
           </View>
-          <View style={styles.buttonRow}>
-            <Button title={module.enabled ? 'Hide for now' : 'Add to my tools'} onPress={() => toggle(module)} />
-            <Link href={module.route as any} asChild><Button title="Open tool" onPress={() => {}} /></Link>
-          </View>
-        </Card>
+        </View>
       ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
-  content: { padding: 18, paddingTop: 64, paddingBottom: 40 },
-  title: { fontSize: 34, fontWeight: '900', color: '#111827' },
-  subtitle: { color: '#6b7280', marginTop: 6, marginBottom: 16, lineHeight: 21 },
-  cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 8 },
-  moduleTitle: { fontSize: 20, fontWeight: '900', color: '#111827', marginBottom: 6 },
-  body: { fontSize: 15, color: '#374151', lineHeight: 22 },
-  status: { color: '#6b7280', marginTop: 6, fontWeight: '700' },
-  headerRow: { flexDirection: 'row', alignItems: 'center' },
-  buttonRow: { flexDirection: 'row', gap: 10, marginTop: 12, flexWrap: 'wrap' }
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: 16, paddingTop: 56, paddingBottom: 64 },
+  topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
+  titleBlock: { flex: 1 },
+  eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 11 },
+  title: { fontSize: 34, fontWeight: '900', color: theme.colors.text, marginTop: 6, lineHeight: 38 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, marginBottom: 16 },
+  group: { marginTop: 4 },
+  sectionTitle: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.8, fontSize: 12, marginBottom: 10 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  shortcut: { width: '48%' },
+  cardFill: { minHeight: 134, justifyContent: 'space-between' },
+  icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  cardTitle: { fontSize: 18, fontWeight: '900', color: theme.colors.text, lineHeight: 22 },
+  subtitle: { color: theme.colors.textMuted, lineHeight: 19, marginTop: 5 }
 });

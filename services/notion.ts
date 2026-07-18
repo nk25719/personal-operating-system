@@ -1,7 +1,8 @@
 import { AppData } from '../types';
+import { getSecret } from '../utils/secrets';
 
 export async function syncProjectsToNotion(data: AppData) {
-  const token = data.integrations.notionToken.trim();
+  const token = await getSecret('notionToken');
   const databaseId = data.integrations.notionDatabaseId.trim();
   if (!token || !databaseId) return 'Add Notion token and database ID in Settings first.';
 

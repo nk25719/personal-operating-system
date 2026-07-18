@@ -1,16 +1,36 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { theme } from '../constants/theme';
 
 export default function RootLayout() {
+  const insets = useSafeAreaInsets();
   return (
-    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#7c3aed', tabBarInactiveTintColor: '#8b7b70', tabBarStyle: { backgroundColor: '#fffaf3', borderTopColor: '#f1e4d0' } }}>
-      <Tabs.Screen name="index" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <Ionicons name="today" color={color} size={size} /> }} />
-      <Tabs.Screen name="tasks" options={{ title: 'Tasks', tabBarIcon: ({ color, size }) => <Ionicons name="checkbox" color={color} size={size} /> }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Ionicons name="person-circle" color={color} size={size} /> }} />
-      <Tabs.Screen name="capture" options={{ title: 'Capture', tabBarIcon: ({ color, size }) => <Ionicons name="mic-circle" color={color} size={size} /> }} />
-      <Tabs.Screen name="modules" options={{ title: 'More', tabBarIcon: ({ color, size }) => <Ionicons name="grid" color={color} size={size} /> }} />
+    <Tabs screenOptions={{
+      headerShown: false,
+      tabBarActiveTintColor: theme.colors.primary,
+      tabBarInactiveTintColor: theme.colors.textMuted,
+      tabBarStyle: {
+        backgroundColor: theme.colors.surface,
+        borderTopColor: theme.colors.border,
+        paddingBottom: Math.max(insets.bottom, 8)
+      }
+    }}>
+      <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} /> }} />
+      <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <Ionicons name="sunny" color={color} size={size} /> }} />
+      <Tabs.Screen name="growth" options={{ title: 'Growth', tabBarIcon: ({ color, size }) => <Ionicons name="trending-up" color={color} size={size} /> }} />
+      <Tabs.Screen name="knowledge" options={{ title: 'Knowledge', tabBarIcon: ({ color, size }) => <Ionicons name="library" color={color} size={size} /> }} />
+      <Tabs.Screen name="relationships" options={{ href: null }} />
+      <Tabs.Screen name="modules" options={{ href: null }} />
+      <Tabs.Screen name="capture" options={{ href: null }} />
+      <Tabs.Screen name="plan" options={{ href: null }} />
+      <Tabs.Screen name="review" options={{ href: null }} />
       <Tabs.Screen name="settings" options={{ href: null }} />
+      <Tabs.Screen name="onboarding" options={{ href: null }} />
 
+      <Tabs.Screen name="tasks" options={{ href: null }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
+      <Tabs.Screen name="social" options={{ href: null }} />
       <Tabs.Screen name="habits" options={{ href: null }} />
       <Tabs.Screen name="projects" options={{ href: null }} />
       <Tabs.Screen name="learning" options={{ href: null }} />

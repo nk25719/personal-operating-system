@@ -1,16 +1,31 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { theme } from '../constants/theme';
 
-type Props = { time?: string; title: string; done: boolean; onPress: () => void };
+type Props = { time?: string; title: string; detail?: string; done: boolean; onPress: () => void };
 
-export function ChecklistRow({ time, title, done, onPress }: Props) {
+export function ChecklistRow({ time, title, detail, done, onPress }: Props) {
+  const [bounceAnim] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    if (!done) return;
+    Animated.sequence([
+      Animated.timing(bounceAnim, { toValue: 1, duration: 140, useNativeDriver: true }),
+      Animated.timing(bounceAnim, { toValue: 0, duration: 220, useNativeDriver: true })
+    ]).start();
+  }, [done, bounceAnim]);
+
+  const scale = bounceAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.14] });
+
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, done && styles.doneRow, pressed && styles.pressed]}>
-      <View style={[styles.check, done && styles.checkDone]}>
+      <Animated.View style={[styles.check, done && styles.checkDone, done ? { transform: [{ scale }] } : null]}>
         <Text style={styles.checkText}>{done ? '✓' : ''}</Text>
-      </View>
+      </Animated.View>
       <View style={styles.copy}>
         {time ? <Text style={styles.time}>{time}</Text> : null}
         <Text style={[styles.title, done && styles.doneText]}>{title}</Text>
+        {detail ? <Text style={styles.detail}>{detail}</Text> : null}
       </View>
     </Pressable>
   );
@@ -19,28 +34,31 @@ export function ChecklistRow({ time, title, done, onPress }: Props) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
+    alignItems: 'flex-start',
+    paddingVertical: 14,
+    minHeight: 56,
     borderTopWidth: 1,
-    borderTopColor: '#f3e8d6'
+    borderTopColor: theme.colors.border
   },
   doneRow: { opacity: 0.66 },
   pressed: { opacity: 0.7 },
   check: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#c4b5fd',
+    borderColor: theme.colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
-    backgroundColor: '#fff'
+    backgroundColor: theme.colors.surface,
+    flexShrink: 0
   },
-  checkDone: { backgroundColor: '#7c3aed', borderColor: '#7c3aed' },
-  checkText: { color: '#fff', fontWeight: '900' },
+  checkDone: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
+  checkText: { color: theme.colors.surface, fontWeight: '900' },
   copy: { flex: 1 },
-  time: { color: '#9a3412', fontSize: 12, fontWeight: '800', marginBottom: 2 },
-  title: { color: '#2f2546', fontSize: 16, fontWeight: '700' },
-  doneText: { textDecorationLine: 'line-through', color: '#78716c' }
+  time: { color: theme.colors.accent, fontSize: 12, fontWeight: '800', marginBottom: 2 },
+  title: { color: theme.colors.text, fontSize: 16, fontWeight: '700' },
+  doneText: { textDecorationLine: 'line-through', color: theme.colors.textMuted },
+  detail: { color: theme.colors.primary, fontWeight: '800', marginTop: 3, fontSize: 12 }
 });

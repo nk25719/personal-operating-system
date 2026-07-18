@@ -2,19 +2,20 @@ import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { useAppData } from '../hooks/useAppData';
 import { applyGeneratedPlan, buildLocalPlan, generatePlan } from '../services/planner';
 import { Character } from '../types';
 
 export default function BuilderScreen() {
-  const { data, setData, loading } = useAppData();
+  const { data, updateData, updateCharacter: mutateCharacter, loading } = useAppData();
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState<ReturnType<typeof buildLocalPlan> | null>(null);
 
   if (loading || !data) return null;
   const active = data.characters.find(c => c.id === data.activeCharacterId) ?? data.characters[0];
-  const updateCharacter = (patch: Partial<Character>) => setData({ ...data, characters: data.characters.map(c => c.id === active.id ? { ...c, ...patch } : c) });
+  const updateCharacter = (patch: Partial<Character>) => mutateCharacter(active.id, patch);
 
   const createPreview = async () => {
     setBusy(true);
@@ -30,13 +31,13 @@ export default function BuilderScreen() {
 
   const applyPlan = async () => {
     if (!preview) return;
-    await setData(applyGeneratedPlan(data, preview));
+    await updateData(current => applyGeneratedPlan(current, preview));
     Alert.alert('Plan updated', 'The generated schedule, habits, projects, and icon research were added.');
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Identity Builder</Text>
+      <SecondaryHeader title="Builder" />
       <Text style={styles.subtitle}>Describe who you want to become and what your real life already requires. POS will suggest a rhythm, habits, projects, and role-model research prompts.</Text>
 
       <Card>
@@ -93,17 +94,17 @@ function Row({ left, right }: { left: string; right: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f2f2f7' },
+  container: { flex: 1, backgroundColor: '#f4f1ea' },
   content: { padding: 18, paddingTop: 64, paddingBottom: 40 },
-  title: { fontSize: 32, fontWeight: '800' },
-  subtitle: { color: '#6b7280', marginTop: 6, marginBottom: 16, lineHeight: 20 },
+  title: { fontSize: 32, fontWeight: '800', color: '#24322f' },
+  subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 20 },
   cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 },
-  row: { borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingVertical: 10 },
-  left: { fontWeight: '800', color: '#111827' },
-  right: { color: '#374151', marginTop: 3, lineHeight: 20 },
-  note: { color: '#6b7280', lineHeight: 20, marginBottom: 10 },
-  iconBlock: { borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingVertical: 10 },
+  row: { borderTopWidth: 1, borderTopColor: '#dde7df', paddingVertical: 10 },
+  left: { fontWeight: '800', color: '#24322f' },
+  right: { color: '#3f4a45', marginTop: 3, lineHeight: 20 },
+  note: { color: '#68766f', lineHeight: 20, marginBottom: 10 },
+  iconBlock: { borderTopWidth: 1, borderTopColor: '#dde7df', paddingVertical: 10 },
   iconName: { fontWeight: '800', fontSize: 16 },
-  iconText: { color: '#374151', marginTop: 4, lineHeight: 20 },
-  query: { color: '#6b7280', marginTop: 6, fontStyle: 'italic' }
+  iconText: { color: '#3f4a45', marginTop: 4, lineHeight: 20 },
+  query: { color: '#68766f', marginTop: 6, fontStyle: 'italic' }
 });

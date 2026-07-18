@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { useAppData } from '../hooks/useAppData';
 import { Task } from '../types';
@@ -18,39 +19,42 @@ const emptyTask = (): Task => ({
 });
 
 export default function TasksScreen() {
-  const { data, setData, loading } = useAppData();
+  const { data, updateData, loading } = useAppData();
   const [draft, setDraft] = useState<Task>(emptyTask());
   if (loading || !data) return null;
 
   const updateTask = (id: string, patch: Partial<Task>) => {
-    setData({ ...data, tasks: data.tasks.map(t => t.id === id ? { ...t, ...patch } : t) });
+    updateData(current => ({ ...current, tasks: current.tasks.map(t => t.id === id ? { ...t, ...patch } : t) }));
   };
 
   const addTask = () => {
     if (!draft.title.trim()) return;
-    setData({ ...data, tasks: [{ ...draft, title: draft.title.trim() }, ...data.tasks] });
+    updateData(
+      current => ({ ...current, tasks: [{ ...draft, title: draft.title.trim() }, ...current.tasks] }),
+      { type: 'task.created', payload: { taskId: draft.id, title: draft.title.trim(), area: draft.area } }
+    );
     setDraft(emptyTask());
   };
 
-  const removeTask = (id: string) => setData({ ...data, tasks: data.tasks.filter(t => t.id !== id) });
+  const removeTask = (id: string) => updateData(current => ({ ...current, tasks: current.tasks.filter(t => t.id !== id) }));
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Tasks</Text>
-      <Text style={styles.subtitle}>A visible place for the commitments that need your attention. Keep it small, real, and useful.</Text>
+      <SecondaryHeader title="Tasks" />
+      <Text style={styles.subtitle}>Keep it honest and small.</Text>
 
       <Card variant="highlight">
-        <Text style={styles.cardTitle}>Add a task</Text>
-        <Field label="What needs to be done?" value={draft.title} onChangeText={v => setDraft({ ...draft, title: v })} placeholder="Write the next paper section" />
-        <Field label="Why does it matter?" value={draft.alignmentNote ?? ''} onChangeText={v => setDraft({ ...draft, alignmentNote: v })} placeholder="This moves my research identity forward" multiline />
-        <Field label="Area" value={draft.area} onChangeText={v => setDraft({ ...draft, area: v as Task['area'] })} placeholder="Personal / Work / Project / Learning / Health / Home / Service" />
-        <Field label="Priority" value={draft.priority} onChangeText={v => setDraft({ ...draft, priority: v as Task['priority'] })} placeholder="Low / Medium / High" />
-        <Field label="Estimated minutes" value={String(draft.estimatedMinutes ?? '')} onChangeText={v => setDraft({ ...draft, estimatedMinutes: Number(v) || undefined })} placeholder="20" />
-        <Button title="Add task" onPress={addTask} />
+        <Text style={styles.cardTitle}>Add action</Text>
+        <Field label="What?" value={draft.title} onChangeText={v => setDraft({ ...draft, title: v })} placeholder="Write the paper section" />
+        <Field label="Why?" value={draft.alignmentNote ?? ''} onChangeText={v => setDraft({ ...draft, alignmentNote: v })} placeholder="Moves my research forward" multiline />
+        <Field label="Area" value={draft.area} onChangeText={v => setDraft({ ...draft, area: v as Task['area'] })} placeholder="Personal/Work/Project/Learning/Health" />
+        <Field label="Priority" value={draft.priority} onChangeText={v => setDraft({ ...draft, priority: v as Task['priority'] })} placeholder="Low/Medium/High" />
+        <Field label="Minutes" value={String(draft.estimatedMinutes ?? '')} onChangeText={v => setDraft({ ...draft, estimatedMinutes: Number(v) || undefined })} placeholder="20" />
+        <Button title="Add" onPress={addTask} />
       </Card>
 
       <Card>
-        <Text style={styles.cardTitle}>Open tasks</Text>
+        <Text style={styles.cardTitle}>Open</Text>
         {data.tasks.length ? data.tasks.map(task => (
           <View key={task.id} style={styles.taskCard}>
             <Field label="Title" value={task.title} onChangeText={v => updateTask(task.id, { title: v })} />
@@ -61,20 +65,20 @@ export default function TasksScreen() {
             </View>
             <Text style={styles.meta}>{task.area} · {task.priority} priority{task.estimatedMinutes ? ` · ${task.estimatedMinutes} min` : ''}</Text>
           </View>
-        )) : <Text style={styles.body}>No tasks yet. Add only what genuinely needs a place to live.</Text>}
+        )) : <Text style={styles.body}>None yet.</Text>}
       </Card>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff7ed' },
-  content: { padding: 18, paddingTop: 58, paddingBottom: 44 },
-  title: { fontSize: 36, fontWeight: '900', color: '#2f2546' },
-  subtitle: { color: '#6b4f3f', marginTop: 8, marginBottom: 16, lineHeight: 22 },
-  cardTitle: { fontSize: 22, fontWeight: '900', marginBottom: 12, color: '#2f2546' },
-  taskCard: { borderTopWidth: 1, borderTopColor: '#f1e4d0', paddingTop: 14, marginTop: 14 },
-  row: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
-  meta: { marginTop: 8, color: '#7c6f64', fontWeight: '700' },
-  body: { color: '#4b3f38', lineHeight: 22 }
+  container: { flex: 1, backgroundColor: '#f6f3ec' },
+  content: { padding: 16, paddingTop: 56, paddingBottom: 64 },
+  title: { fontSize: 32, fontWeight: '900', color: '#24322f', lineHeight: 36 },
+  subtitle: { color: '#68766f', marginTop: 8, marginBottom: 16, lineHeight: 21, fontSize: 15 },
+  cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: '#24322f' },
+  taskCard: { borderTopWidth: 1, borderTopColor: '#dde7df', paddingTop: 14, marginTop: 14 },
+  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  meta: { marginTop: 8, color: '#68766f', fontWeight: '700' },
+  body: { color: '#3f4a45', lineHeight: 22 }
 });
