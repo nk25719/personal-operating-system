@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
   titleBlock: { flex: 1, minWidth: 0 },
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 11 },
-  title: { fontSize: 30, fontWeight: '900', color: theme.colors.text, marginTop: 6, lineHeight: 34, flexShrink: 1 },
+  title: { fontSize: 24, lineHeight: 29, fontWeight: '800', color: theme.colors.text, flexShrink: 1 },
   list: { gap: 10 },
   card: { gap: 12 },
   cardRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   copy: { flex: 1, minWidth: 0 },
   titleRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 },
   badge: { color: theme.colors.accent, backgroundColor: theme.colors.accentSoft, overflow: 'hidden', borderRadius: 999, paddingVertical: 4, paddingHorizontal: 8, fontSize: 11, fontWeight: '900' },
-  cardTitle: { flex: 1, minWidth: 0, fontSize: 18, fontWeight: '900', color: theme.colors.text, lineHeight: 22 },
+  cardTitle: { flex: 1, minWidth: 0, fontSize: 16, fontWeight: '900', color: theme.colors.text, lineHeight: 22 },
   subtitle: { color: theme.colors.textMuted, lineHeight: 19, marginTop: 4 },
   open: { alignSelf: 'flex-start' }
 });

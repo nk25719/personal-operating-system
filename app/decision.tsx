@@ -40,10 +40,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   content: { padding: 18, paddingTop: 64 },
   subtitle: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16 },
-  titleInput: { fontSize: 18, borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingVertical: 12, marginBottom: 12 },
+  titleInput: { fontSize: 16, borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingVertical: 12, marginBottom: 12 },
   row: { marginVertical: 10 },
   label: { fontSize: 15, fontWeight: '700', marginBottom: 6, color: theme.colors.text },
-  input: { backgroundColor: theme.colors.background, borderRadius: 10, padding: 12, fontSize: 18 },
-  total: { fontSize: 22, fontWeight: '800', marginTop: 16, color: theme.colors.text },
-  result: { fontSize: 18, marginTop: 8, color: theme.colors.text }
+  input: { backgroundColor: theme.colors.background, borderRadius: 10, padding: 12, fontSize: 16 },
+  total: { fontSize: 16, fontWeight: '800', marginTop: 16, color: theme.colors.text },
+  result: { fontSize: 16, marginTop: 8, color: theme.colors.text }
 });

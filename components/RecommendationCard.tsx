@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' },
   headingWrap: { flex: 1 },
   eyebrow: { color: '#9a6b4f', fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 10, marginBottom: 4 },
-  title: { fontSize: 18, fontWeight: '900', color: '#24322f', marginBottom: 6, lineHeight: 22 },
+  title: { fontSize: 16, fontWeight: '900', color: '#24322f', marginBottom: 6, lineHeight: 22 },
   sectionTitle: { marginTop: 12, fontSize: 13, fontWeight: '900', color: '#5f7f71', textTransform: 'uppercase', letterSpacing: 0.7 },
   body: { marginTop: 4, fontSize: 15, lineHeight: 22, color: '#3f4a45' },
   tinyAction: { marginTop: 6, fontSize: 16, lineHeight: 22, color: '#24322f', fontWeight: '900' },

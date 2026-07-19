@@ -45,7 +45,7 @@ export function MoodPickerCard({ title, summary, options, selectedValue, onSelec
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 18, fontWeight: '900', color: '#24322f', marginBottom: 6, lineHeight: 22 },
+  title: { fontSize: 16, fontWeight: '900', color: '#24322f', marginBottom: 6, lineHeight: 22 },
   summary: { fontSize: 13, lineHeight: 19, color: '#68766f', marginBottom: 12 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   option: {
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   optionActive: { borderColor: '#5f7f71', backgroundColor: '#e7f0ea' },
-  emoji: { fontSize: 20, marginBottom: 4 },
+  emoji: { fontSize: 17, marginBottom: 4 },
   optionLabel: { fontSize: 13, fontWeight: '800', color: '#68766f' },
   optionLabelActive: { color: '#36594d' },
   note: { marginTop: 10, fontSize: 14, lineHeight: 20, color: '#7b5b3f', fontWeight: '700' }

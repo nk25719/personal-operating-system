@@ -138,10 +138,10 @@ export default function LifeClockScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f1ea' },
   content: { padding: 18, paddingTop: 64 },
-  title: { fontSize: 32, fontWeight: '800', color: '#24322f' },
+  title: { fontSize: 24, lineHeight: 29, fontWeight: '800', color: '#24322f' },
   subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 21 },
-  cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 },
-  big: { fontSize: 30, fontWeight: '900', color: '#24322f', lineHeight: 38 },
+  cardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
+  big: { fontSize: 16, fontWeight: '900', color: '#24322f', lineHeight: 38 },
   note: { color: '#3f4a45', marginTop: 12, fontSize: 16, lineHeight: 23 },
   progressWrap: { marginTop: 16, height: 34, borderRadius: 17, backgroundColor: '#dde7df', overflow: 'hidden', justifyContent: 'center' },
   progressFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: '#24322f' },

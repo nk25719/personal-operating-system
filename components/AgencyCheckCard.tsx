@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
   heading: { flex: 1 },
   eyebrow: { color: '#9a6b4f', fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 10, marginBottom: 4 },
-  title: { fontSize: 18, fontWeight: '900', color: '#24322f', lineHeight: 23 },
+  title: { fontSize: 16, fontWeight: '900', color: '#24322f', lineHeight: 23 },
   score: { minWidth: 58, minHeight: 44, borderRadius: 22, backgroundColor: '#e7f0ea', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
   scoreText: { color: '#36594d', fontWeight: '900' },
   needRow: { borderTopWidth: 1, borderTopColor: '#dde7df', paddingTop: 12, marginTop: 12 },

@@ -39,5 +39,5 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   content: { padding: 18, paddingTop: 64 },
   subtitle: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16 },
-  answer: { color: theme.colors.text, fontSize: 16, lineHeight: 24 }
+  answer: { color: theme.colors.text, fontSize: 16, lineHeight: 21 }
 });

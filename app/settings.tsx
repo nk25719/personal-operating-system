@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   iconCheck: { width: 78, maxWidth: '31%', alignItems: 'center', gap: 6, minWidth: 0 },
   iconCircle: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceSoft },
   iconLabel: { color: theme.colors.textMuted, fontSize: 11, fontWeight: '800', textAlign: 'center' },
-  cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12, color: theme.colors.text },
-  message: { color: theme.colors.text, fontSize: 16, lineHeight: 24 },
+  cardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 12, color: theme.colors.text },
+  message: { color: theme.colors.text, fontSize: 16, lineHeight: 21 },
   smallTitle: { color: theme.colors.text, fontSize: 16, fontWeight: '800', marginTop: 8, marginBottom: 8 }
 });

@@ -98,9 +98,9 @@ function buildConstraintSummary(profile: HealthProfile) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f1ea' },
   content: { padding: 18, paddingTop: 64, paddingBottom: 40 },
-  title: { fontSize: 32, fontWeight: '800', color: '#24322f' },
+  title: { fontSize: 24, lineHeight: 29, fontWeight: '800', color: '#24322f' },
   subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 20 },
-  cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 },
+  cardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
   disclaimer: { color: '#68766f', lineHeight: 20, marginTop: 12 },
   rule: { borderTopWidth: 1, borderTopColor: '#dde7df', paddingVertical: 10 },
   ruleTitle: { fontWeight: '800', color: '#24322f' },

@@ -15,7 +15,7 @@ export function IdentityCard({ character }: { character: Character }) {
 const styles = StyleSheet.create({
   card: { backgroundColor: '#eef5f1', borderRadius: 24, borderWidth: 1, borderColor: '#d8e6de', padding: 18, marginBottom: 14 },
   eyebrow: { color: '#5f7f71', fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.8, fontSize: 11, marginBottom: 4 },
-  title: { fontSize: 20, fontWeight: '900', color: '#24322f', marginBottom: 6 },
+  title: { fontSize: 17, fontWeight: '900', color: '#24322f', marginBottom: 6 },
   body: { fontSize: 15, lineHeight: 22, color: '#3f4a45' },
   muted: { marginTop: 8, fontSize: 14, lineHeight: 20, color: '#68766f' }
 });

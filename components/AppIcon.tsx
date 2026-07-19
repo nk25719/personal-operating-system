@@ -1,7 +1,6 @@
 import { Text } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { theme } from '../constants/theme';
-import { AppIconName, getAppIconGlyph, isAppIconName } from '../utils/icons';
+import { AppIconName, getAppIconFallback, isAppIconName } from '../utils/icons';
 
 export type { AppIconName };
 
@@ -25,28 +24,21 @@ function warnIconIssue(name: string) {
 
 export function AppIcon({ iconKey: explicitIconKey, name, size = 22, color = theme.colors.primary, fallbackLabel }: Props) {
   const iconKey = explicitIconKey ?? name ?? '';
-  const fallbackStyle = {
+  const iconStyle = {
     color,
-    fontSize: Math.max(14, Math.min(22, Math.round(size * 0.82))),
+    fontSize: Math.max(16, Math.min(28, Math.round(size * 0.92))),
     fontWeight: '900' as const,
-    minWidth: size,
-    height: size,
-    lineHeight: size,
+    width: size + 6,
+    height: size + 6,
+    lineHeight: size + 4,
     paddingHorizontal: 2,
-    textAlign: 'center' as const
+    textAlign: 'center' as const,
+    includeFontPadding: false
   };
 
   if (!isAppIconName(iconKey)) {
     warnIconIssue(iconKey || 'missing');
-    return <Text style={fallbackStyle}>{fallbackLabel ?? '?'}</Text>;
+    return <Text style={iconStyle}>{fallbackLabel ?? '•'}</Text>;
   }
-  return (
-    <Ionicons
-      name={getAppIconGlyph(iconKey) as keyof typeof Ionicons.glyphMap}
-      size={size}
-      color={color}
-      accessibilityElementsHidden
-      importantForAccessibility="no"
-    />
-  );
+  return <Text style={iconStyle}>{getAppIconFallback(iconKey)}</Text>;
 }

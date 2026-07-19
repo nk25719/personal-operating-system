@@ -15,6 +15,6 @@ export function AccountabilityCard({ title, summary, onRespond }: { title: strin
 const styles = StyleSheet.create({
   card: { backgroundColor: '#fffdf8', borderRadius: 24, borderWidth: 1, borderColor: '#dde7df', padding: 18, marginBottom: 14 },
   eyebrow: { color: '#9a6b4f', fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.8, fontSize: 11, marginBottom: 4 },
-  title: { fontSize: 18, fontWeight: '900', color: '#24322f', marginBottom: 6 },
+  title: { fontSize: 16, fontWeight: '900', color: '#24322f', marginBottom: 6 },
   body: { fontSize: 15, lineHeight: 22, color: '#3f4a45', marginBottom: 12 }
 });

@@ -20,7 +20,8 @@ export default function RootLayout() {
           minHeight: 58 + Math.max(insets.bottom, 0)
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
+          lineHeight: 12,
           fontWeight: '800'
         }
       }}>
@@ -28,7 +29,7 @@ export default function RootLayout() {
         <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <AppIcon iconKey="today" color={color} size={size} /> }} />
         <Tabs.Screen name="plan" options={{ title: 'Plan', tabBarIcon: ({ color, size }) => <AppIcon iconKey="plan" color={color} size={size} /> }} />
         <Tabs.Screen name="growth" options={{ title: 'Growth', tabBarIcon: ({ color, size }) => <AppIcon iconKey="growth" color={color} size={size} /> }} />
-        <Tabs.Screen name="knowledge" options={{ title: 'Knowledge', tabBarIcon: ({ color, size }) => <AppIcon iconKey="knowledge" color={color} size={size} /> }} />
+        <Tabs.Screen name="knowledge" options={{ title: 'Know', tabBarIcon: ({ color, size }) => <AppIcon iconKey="knowledge" color={color} size={size} /> }} />
         <Tabs.Screen name="relationships" options={{ href: null }} />
         <Tabs.Screen name="modules" options={{ href: null }} />
         <Tabs.Screen name="capture" options={{ href: null }} />

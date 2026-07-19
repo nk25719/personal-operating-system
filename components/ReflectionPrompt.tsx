@@ -15,6 +15,6 @@ export function ReflectionPrompt({ prompt, onRespond }: { prompt: string; onResp
 const styles = StyleSheet.create({
   card: { backgroundColor: '#fffdf8', borderRadius: 24, borderWidth: 1, borderColor: '#dde7df', padding: 18, marginBottom: 14 },
   eyebrow: { color: '#9a6b4f', fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.8, fontSize: 11, marginBottom: 4 },
-  prompt: { fontSize: 18, fontWeight: '900', color: '#24322f', marginBottom: 8 },
+  prompt: { fontSize: 16, fontWeight: '900', color: '#24322f', marginBottom: 8 },
   body: { fontSize: 14, lineHeight: 20, color: '#68766f', marginBottom: 12 }
 });

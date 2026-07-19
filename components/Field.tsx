@@ -11,7 +11,7 @@ export function Field({ label, value, onChangeText, placeholder, multiline = fal
 }
 const styles = StyleSheet.create({
   wrap: { width: '100%', minWidth: 0, marginBottom: 14 },
-  label: { fontWeight: '700', marginBottom: 8, color: theme.colors.text, fontSize: 15, flexShrink: 1 },
-  input: { width: '100%', minWidth: 0, backgroundColor: theme.colors.background, borderRadius: 12, padding: 14, fontSize: 16, minHeight: 44, color: theme.colors.text },
+  label: { fontWeight: '700', marginBottom: 8, color: theme.colors.text, fontSize: 14, lineHeight: 18, flexShrink: 1 },
+  input: { width: '100%', minWidth: 0, backgroundColor: theme.colors.background, borderRadius: 12, padding: 12, fontSize: 15, lineHeight: 20, minHeight: 44, color: theme.colors.text },
   multiline: { minHeight: 110, textAlignVertical: 'top' }
 });

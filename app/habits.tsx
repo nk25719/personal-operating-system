@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   content: { padding: 18, paddingTop: 64, paddingBottom: 44 },
   subtitle: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16, lineHeight: 22 },
-  cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 8, color: theme.colors.text },
+  cardTitle: { fontSize: 17, fontWeight: '900', marginBottom: 8, color: theme.colors.text },
   body: { color: theme.colors.text, lineHeight: 22 },
   metricRow: { flexDirection: 'row', gap: 10 },
   two: { flexDirection: 'row', gap: 10 },

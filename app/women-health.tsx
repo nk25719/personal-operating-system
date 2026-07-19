@@ -189,11 +189,11 @@ export default function WomenHealthScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f1ea' },
   content: { padding: 18, paddingTop: 64 },
-  title: { fontSize: 32, fontWeight: '800', color: '#24322f' },
+  title: { fontSize: 24, lineHeight: 29, fontWeight: '800', color: '#24322f' },
   subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 21 },
-  cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 },
+  cardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
   note: { color: '#3f4a45', fontSize: 15, lineHeight: 22, marginBottom: 8 },
-  big: { fontSize: 26, fontWeight: '900', color: '#24322f', lineHeight: 34, marginBottom: 8 },
+  big: { fontSize: 26, fontWeight: '900', color: '#24322f', lineHeight: 27, marginBottom: 8 },
   line: { fontSize: 16, color: '#24322f', marginTop: 5 },
   summaryBox: { backgroundColor: '#fffdf8', borderRadius: 14, padding: 14, marginTop: 10 },
   disclaimer: { color: '#68766f', fontSize: 13, lineHeight: 19, marginTop: 8 }

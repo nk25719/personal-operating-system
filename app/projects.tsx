@@ -56,7 +56,7 @@ function averageProgress(projects: Project[]) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   content: { padding: 18, paddingTop: 64 },
-  cardTitle: { fontSize: 20, fontWeight: '800', marginBottom: 8, color: theme.colors.text },
+  cardTitle: { fontSize: 17, fontWeight: '800', marginBottom: 8, color: theme.colors.text },
   body: { color: theme.colors.text, lineHeight: 22 },
   metricRow: { flexDirection: 'row', gap: 10 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
