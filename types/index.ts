@@ -1,11 +1,24 @@
-export type TonePreference = 'warm' | 'gentle' | 'direct' | 'practical' | 'reflective' | 'coach' | 'minimal';
+export type TonePreference = 'warm' | 'gentle' | 'direct' | 'practical' | 'reflective' | 'coach' | 'minimal' | 'structured';
 
 export type UserPreferences = {
   preferredName?: string;
   tone: TonePreference;
   rotatingPrompts: string[];
   onboardingCompleted?: boolean;
+  onboardingCompletedAt?: string;
   currentSeason?: string;
+  weeklyFocus?: string;
+  energyPattern?: 'low' | 'mixed' | 'good';
+  dailyTimeBudget?: '5 min' | '15 min' | '30 min' | 'flexible';
+  recommendedModules?: ModuleKey[];
+};
+
+export type UserProfile = {
+  authUserId?: string;
+  email?: string | null;
+  username?: string;
+  displayName?: string;
+  pronouns?: string;
 };
 
 export type Character = {
@@ -258,6 +271,7 @@ export type FriendConnection = {
 };
 
 export type AppData = {
+  userProfile?: UserProfile;
   activeCharacterId: string;
   characters: Character[];
   routine: RoutineItem[];

@@ -168,6 +168,8 @@ export function getMockRecommendations(data: AppData, checkIn: MotivationCheckIn
   const lowestNeed = lowestMotivationNeed(checkIn);
   const adjustment = motivationAdjustment(checkIn);
   const score = motivationAverage(checkIn);
+  const tone = data.preferences?.tone;
+  const toneSummary = recommendationToneSummary(tone, adjustment.summary);
 
   return applyRecommendationLearning([
     buildContractRecommendation('local-recommendation-1', {
@@ -177,7 +179,7 @@ export function getMockRecommendations(data: AppData, checkIn: MotivationCheckIn
       candidate: {
         type: lowestNeed === 'relatedness' ? 'relationship_checkin' : 'project_next_action',
         title: adjustment.title,
-        summary: adjustment.summary,
+        summary: toneSummary,
         whyItMatters: 'Self-directed effort lasts longer than compliance. This keeps the plan aligned with choice, doable progress, and support.',
         whyToday: adjustment.evidence,
         tinyAction: adjustment.tinyAction,
@@ -224,6 +226,13 @@ export function getMockRecommendations(data: AppData, checkIn: MotivationCheckIn
       }
     })
   ], plannerMemory);
+}
+
+function recommendationToneSummary(tone: AppData['preferences']['tone'], fallback: string) {
+  if (tone === 'direct') return 'Choose the smallest useful step and do only that.';
+  if (tone === 'structured') return 'Pick one clear step, keep it small, and review the result later.';
+  if (tone === 'gentle') return 'Choose one kind, doable step that supports today.';
+  return fallback;
 }
 
 export function applyRecommendationLearning(recommendations: Recommendation[], plannerMemory: PlannerMemoryRecord[]): Recommendation[] {

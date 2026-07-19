@@ -1,6 +1,13 @@
 import { AppData } from '../types';
 
 export const defaultData: AppData = {
+  userProfile: {
+    authUserId: '',
+    email: '',
+    username: '',
+    displayName: '',
+    pronouns: ''
+  },
   activeCharacterId: 'nagham',
   characters: [
     {
@@ -122,7 +129,12 @@ export const defaultData: AppData = {
     preferredName: 'Nagham',
     tone: 'warm',
     onboardingCompleted: false,
+    onboardingCompletedAt: '',
     currentSeason: '',
+    weeklyFocus: '',
+    energyPattern: 'mixed',
+    dailyTimeBudget: '15 min',
+    recommendedModules: ['habits', 'learning'],
     rotatingPrompts: [
       'What would move you closer to the person you are becoming today?',
       'What is one meaningful step toward the life you are building?',

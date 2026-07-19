@@ -41,6 +41,7 @@ export async function getAppData(): Promise<AppData> {
   return {
     ...defaultData,
     ...stored,
+    userProfile: { ...defaultData.userProfile, ...stored.userProfile },
     lifeProfile: { ...defaultData.lifeProfile, ...stored.lifeProfile },
     womenHealth: { ...defaultData.womenHealth, ...stored.womenHealth },
     preferences: {

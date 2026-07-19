@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Button } from '../components/Button';
@@ -6,32 +6,57 @@ import { Card } from '../components/Card';
 import { Field } from '../components/Field';
 import { Chip } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
-import { applyOnboarding, OnboardingTone } from '../services/onboarding';
+import { applyOnboarding, DailyTimeBudget, EnergyPattern, LifeSeason, OnboardingTone, recommendModules, suggestHabits } from '../services/onboarding';
+import { ModuleKey } from '../types';
+import { theme } from '../constants/theme';
 
-const toneOptions: { id: OnboardingTone; label: string }[] = [
-  { id: 'gentle', label: 'Gentle' },
-  { id: 'direct', label: 'Direct' },
-  { id: 'practical', label: 'Practical' },
-  { id: 'reflective', label: 'Reflective' }
+const seasons: LifeSeason[] = ['rebuilding', 'growing', 'overwhelmed', 'steady', 'exploring'];
+const values = ['health', 'learning', 'faith', 'family', 'creativity', 'career', 'peace', 'independence', 'relationships'];
+const focuses = ['feel healthier', 'organize life', 'learn consistently', 'finish a project', 'reduce stress', 'build routine'];
+const energies: EnergyPattern[] = ['low', 'mixed', 'good'];
+const tones: OnboardingTone[] = ['gentle', 'direct', 'structured'];
+const budgets: DailyTimeBudget[] = ['5 min', '15 min', '30 min', 'flexible'];
+const moduleOptions: { key: ModuleKey; label: string }[] = [
+  { key: 'habits', label: 'Habits' },
+  { key: 'projects', label: 'Projects' },
+  { key: 'learning', label: 'Learning' },
+  { key: 'health', label: 'Health' },
+  { key: 'environment', label: 'Relationships' },
+  { key: 'decision', label: 'Decisions' }
 ];
 
 export default function OnboardingScreen() {
   const { data, updateData, loading } = useAppData();
-  const [desiredPerson, setDesiredPerson] = useState('');
-  const [currentSeason, setCurrentSeason] = useState('');
-  const [valuesText, setValuesText] = useState('');
-  const [tinyHabit, setTinyHabit] = useState('');
+  const [step, setStep] = useState(0);
+  const [preferredName, setPreferredName] = useState(data?.preferences.preferredName ?? '');
+  const [username, setUsername] = useState(data?.userProfile?.username ?? '');
+  const [pronouns, setPronouns] = useState(data?.userProfile?.pronouns ?? '');
+  const [currentSeason, setCurrentSeason] = useState<LifeSeason>('growing');
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [weeklyFocus, setWeeklyFocus] = useState('build routine');
+  const [energyPattern, setEnergyPattern] = useState<EnergyPattern>('mixed');
   const [tone, setTone] = useState<OnboardingTone>('gentle');
+  const [dailyTimeBudget, setDailyTimeBudget] = useState<DailyTimeBudget>('15 min');
+  const habitSuggestions = useMemo(() => suggestHabits({ weeklyFocus, energyPattern, dailyTimeBudget }), [weeklyFocus, energyPattern, dailyTimeBudget]);
+  const [habits, setHabits] = useState<string[]>(habitSuggestions);
+  const recommendedModules = useMemo(() => recommendModules({ weeklyFocus, values: selectedValues }), [weeklyFocus, selectedValues]);
+  const [modules, setModules] = useState<ModuleKey[]>(recommendedModules);
 
   if (loading || !data) return null;
 
   const finish = async () => {
     await updateData(
       current => applyOnboarding(current, {
-        desiredPerson,
+        preferredName,
+        username,
+        pronouns,
         currentSeason,
-        values: valuesText.split(','),
-        tinyHabit,
+        values: selectedValues,
+        weeklyFocus,
+        energyPattern,
+        dailyTimeBudget,
+        habits,
+        recommendedModules: modules,
         tone
       }),
       { type: 'data.updated', payload: { reason: 'onboarding.completed' } }
@@ -39,71 +64,110 @@ export default function OnboardingScreen() {
     router.replace('/');
   };
 
+  const next = () => {
+    if (step < 4) setStep(step + 1);
+    else finish();
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.eyebrow}>First setup</Text>
-      <Text style={styles.title}>Start gently.</Text>
-      <View style={styles.chipRow}>
-        <Chip label="Identity" />
-        <Chip label="Values" />
-        <Chip label="Tiny habit" />
-      </View>
+      <Text style={styles.title}>{titles[step]}</Text>
+      <Text style={styles.step}>Step {step + 1} of 5</Text>
 
-      <Card>
-        <Field
-          label="Desired person"
-          value={desiredPerson}
-          onChangeText={setDesiredPerson}
-          multiline
-          placeholder="A healthier, steadier builder who keeps promises gently."
-        />
-        <Field
-          label="Current season"
-          value={currentSeason}
-          onChangeText={setCurrentSeason}
-          multiline
-          placeholder="Busy work season, low energy evenings, protecting health."
-        />
-        <Field
-          label="Three values, comma separated"
-          value={valuesText}
-          onChangeText={setValuesText}
-          placeholder="Health, mastery, freedom"
-        />
-        <Field
-          label="One tiny habit"
-          value={tinyHabit}
-          onChangeText={setTinyHabit}
-          placeholder="Read one paragraph after dinner"
-        />
-      </Card>
+      {step === 0 ? (
+        <Card>
+          <Field label="Preferred name" value={preferredName} onChangeText={setPreferredName} placeholder="Nagham" />
+          <Field label="Username" value={username} onChangeText={setUsername} placeholder="nagham" />
+          <Field label="Pronouns optional" value={pronouns} onChangeText={setPronouns} placeholder="she/her" />
+          <Text style={styles.label}>Season</Text>
+          <ChipRow options={seasons} selected={[currentSeason]} onPress={value => setCurrentSeason(value as LifeSeason)} />
+        </Card>
+      ) : null}
 
-      <Card>
-        <Text style={styles.cardTitle}>Recommendation tone</Text>
-        <View style={styles.toneGrid}>
-          {toneOptions.map(option => (
-            <Button
-              key={option.id}
-              title={option.label}
-              variant={tone === option.id ? 'primary' : 'secondary'}
-              onPress={() => setTone(option.id)}
-            />
-          ))}
-        </View>
-      </Card>
+      {step === 1 ? (
+        <Card>
+          <Text style={styles.label}>Choose up to 3 values</Text>
+          <ChipRow options={values} selected={selectedValues} onPress={toggleValue} />
+        </Card>
+      ) : null}
 
-      <Button title="Begin" onPress={finish} />
+      {step === 2 ? (
+        <Card>
+          <Text style={styles.label}>This week</Text>
+          <ChipRow options={focuses} selected={[weeklyFocus]} onPress={setWeeklyFocus} />
+          <Field label="Or write your focus" value={weeklyFocus} onChangeText={setWeeklyFocus} />
+        </Card>
+      ) : null}
+
+      {step === 3 ? (
+        <Card>
+          <Text style={styles.label}>Energy</Text>
+          <ChipRow options={energies} selected={[energyPattern]} onPress={value => setEnergyPattern(value as EnergyPattern)} />
+          <Text style={styles.label}>Tone</Text>
+          <ChipRow options={tones} selected={[tone]} onPress={value => setTone(value as OnboardingTone)} />
+          <Text style={styles.label}>Daily time</Text>
+          <ChipRow options={budgets} selected={[dailyTimeBudget]} onPress={value => setDailyTimeBudget(value as DailyTimeBudget)} />
+        </Card>
+      ) : null}
+
+      {step === 4 ? (
+        <>
+          <Card>
+            <Text style={styles.cardTitle}>Starting habits</Text>
+            <ChipRow options={habitSuggestions} selected={habits} onPress={toggleHabit} />
+            <Field label="Edit first habit" value={habits[0] ?? ''} onChangeText={value => setHabits([value, ...habits.slice(1)])} />
+          </Card>
+          <Card>
+            <Text style={styles.cardTitle}>Modules</Text>
+            <ChipRow options={moduleOptions.map(option => option.label)} selected={moduleOptions.filter(option => modules.includes(option.key)).map(option => option.label)} onPress={toggleModuleByLabel} />
+            <View style={styles.chipRow}>{recommendedModules.map(module => <Chip key={module} label={`Suggested: ${module}`} />)}</View>
+          </Card>
+        </>
+      ) : null}
+
+      <Button title={step === 4 ? 'Your POS is ready' : 'Continue'} onPress={next} />
     </ScrollView>
+  );
+
+  function toggleValue(value: string) {
+    setSelectedValues(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value].slice(0, 3));
+  }
+
+  function toggleHabit(value: string) {
+    setHabits(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value].slice(0, 3));
+  }
+
+  function toggleModuleByLabel(label: string) {
+    const module = moduleOptions.find(option => option.label === label)?.key;
+    if (!module) return;
+    setModules(current => current.includes(module) ? current.filter(item => item !== module) : [...current, module]);
+  }
+}
+
+function ChipRow({ options, selected, onPress }: { options: readonly string[]; selected: string[]; onPress: (value: string) => void }) {
+  return (
+    <View style={styles.chipRow}>
+      {options.map(option => (
+        <Button key={option} title={label(option)} variant={selected.includes(option) ? 'primary' : 'secondary'} onPress={() => onPress(option)} />
+      ))}
+    </View>
   );
 }
 
+function label(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+const titles = ['Who are you becoming?', 'What matters?', 'What needs focus?', 'What pace fits?', 'Choose your start.'];
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f6f3ec' },
+  container: { flex: 1, backgroundColor: theme.colors.background },
   content: { padding: 18, paddingTop: 72, paddingBottom: 48 },
-  eyebrow: { color: '#5f7f71', fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1, fontSize: 12 },
-  title: { fontSize: 32, fontWeight: '900', color: '#24322f', lineHeight: 36, marginTop: 8 },
-  subtitle: { color: '#68766f', lineHeight: 22, marginTop: 8, marginBottom: 16 },
-  cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: '#24322f' },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, marginBottom: 16 },
-  toneGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }
+  eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1, fontSize: 12 },
+  title: { fontSize: 32, fontWeight: '900', color: theme.colors.text, lineHeight: 36, marginTop: 8 },
+  step: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16, fontWeight: '800' },
+  cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: theme.colors.text },
+  label: { color: theme.colors.accent, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12, marginBottom: 8 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }
 });

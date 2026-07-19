@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Link, Redirect } from 'expo-router';
+import { Link } from 'expo-router';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { HeaderActions } from '../components/HeaderActions';
 import { Chip, Details } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
 import { defaultMotivationCheckIn, getMockRecommendations, motivationStorageKey, openTasks, preferredName } from '../services/os';
-import { shouldShowOnboarding } from '../services/onboarding';
 import { isRelationshipCue } from '../services/relationshipCue';
 import { MotivationCheckIn, PlannerMemoryRecord, Recommendation } from '../types';
 import { getJSON, getPlannerMemory } from '../utils/storage';
@@ -26,7 +25,6 @@ export default function HomeScreen() {
   ), [data, motivation, plannerMemory]);
 
   if (loading || !data) return null;
-  if (shouldShowOnboarding(data)) return <Redirect href="/onboarding" />;
 
   const task = openTasks(data)[0];
   const adjustment = recommendations[0];

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Link, Redirect } from 'expo-router';
+import { Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
@@ -12,7 +12,6 @@ import { defaultMotivationCheckIn, getMockRecommendations, motivationStorageKey,
 import { Chip, ProgressBar } from '../components/Visual';
 import { MotivationCheckIn, MutationEvent, PlannerMemoryRecord, PlannerMemoryResponse, Recommendation, RecommendationAction } from '../types';
 import { recordRecommendationResponse } from '../services/plannerMemory';
-import { shouldShowOnboarding } from '../services/onboarding';
 import { isRelationshipCue } from '../services/relationshipCue';
 import { getNextSmallActionItem, getSmallStep, isRecommendationForHabit } from '../services/todayPresentation';
 import { calculateHabitStreak, formatConsecutiveCompletion, formatStreak } from '../services/streaks';
@@ -39,7 +38,6 @@ export default function TodayScreen() {
   ), [data, motivation, plannerMemory]);
 
   if (loading || !data) return null;
-  if (shouldShowOnboarding(data)) return <Redirect href="/onboarding" />;
 
   const routine = routineWithoutMaintenance(data.routine);
   const completed = routine.filter(item => done[item.id]).length;
@@ -109,7 +107,7 @@ export default function TodayScreen() {
         ) : (
           <>
             <Text style={styles.body}>Nothing scheduled next.</Text>
-            <Text style={styles.muted}>Use this time for your focus.</Text>
+            <Text style={styles.muted}>{data.preferences.weeklyFocus ? `Use this time for ${data.preferences.weeklyFocus}.` : 'Use this time for your focus.'}</Text>
           </>
         )}
       </Card>

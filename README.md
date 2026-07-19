@@ -124,6 +124,45 @@ npm test
 npm run lint
 npx expo-doctor
 ```
+
+## Firebase Auth Setup
+
+POS uses Firebase Authentication for login. Enable these providers in the Firebase console:
+
+- Email/password
+- Google, for web sign-in
+
+Create `.env` from `.env.example` and add the Firebase web app config:
+
+```bash
+EXPO_PUBLIC_FIREBASE_API_KEY=...
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=...
+EXPO_PUBLIC_FIREBASE_APP_ID=...
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+```
+
+These Firebase config values are public client config, not provider secrets. Do not store OpenAI or Notion tokens here.
+
+On web, Firebase Google sign-in uses the browser popup flow. Native Google sign-in still needs an Expo AuthSession implementation before mobile beta.
+
+## Web Deploy
+
+Build the web preview:
+
+```bash
+npx expo export --platform web
+```
+
+Deploy the generated `dist` folder with Firebase Hosting:
+
+```bash
+firebase deploy --only hosting
+```
+
+On web, SecureStore may be unavailable. POS avoids persisting OpenAI/Notion secrets in AsyncStorage; provider tokens should be treated as mobile/local-device only until a server-side secret store exists.
+
 after every app change, before deploying, run:
 
 ```bash

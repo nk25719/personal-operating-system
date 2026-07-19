@@ -51,6 +51,7 @@ export default function GrowthScreen() {
           <Text style={styles.connectionText}>{character?.desiredPerson ?? character?.identity}</Text>
           <View style={styles.chips}>
             <Chip label={data.preferences.currentSeason || 'Current season'} />
+            {data.preferences.weeklyFocus ? <Chip label={data.preferences.weeklyFocus} /> : null}
             {character?.values.slice(0, 3).map(value => <Chip key={value} label={value} />)}
           </View>
           <Details title="Today’s intention">

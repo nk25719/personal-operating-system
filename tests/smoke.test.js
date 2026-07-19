@@ -120,21 +120,39 @@ test('onboarding stores first-launch preferences and creates one tiny habit', ()
 
   assert.equal(shouldShowOnboarding(defaultData), true);
   const next = applyOnboarding(defaultData, {
-    desiredPerson: 'A steady researcher who keeps small promises',
-    currentSeason: 'Busy work season with protected evenings',
+    preferredName: 'N',
+    username: 'steady_researcher',
+    pronouns: 'she/her',
+    currentSeason: 'growing',
     values: ['Health', 'Mastery', 'Freedom', 'Extra'],
-    tinyHabit: 'Read one paragraph after dinner',
-    tone: 'practical'
+    weeklyFocus: 'learn consistently',
+    energyPattern: 'mixed',
+    dailyTimeBudget: '15 min',
+    habits: ['Read one paragraph after dinner'],
+    recommendedModules: ['learning', 'habits'],
+    tone: 'structured'
   }, 123);
 
   assert.equal(shouldShowOnboarding(next), false);
   assert.equal(next.preferences.onboardingCompleted, true);
-  assert.equal(next.preferences.currentSeason, 'Busy work season with protected evenings');
-  assert.equal(next.preferences.tone, 'practical');
-  assert.equal(next.characters[0].desiredPerson, 'A steady researcher who keeps small promises');
+  assert.equal(next.preferences.currentSeason, 'growing');
+  assert.equal(next.preferences.tone, 'structured');
+  assert.equal(next.preferences.weeklyFocus, 'learn consistently');
+  assert.equal(next.userProfile.username, 'steady_researcher');
   assert.deepEqual(next.characters[0].values, ['Health', 'Mastery', 'Freedom']);
   assert.equal(next.habits[0].id, 'habit-onboarding-123');
   assert.equal(next.habits[0].name, 'Read one paragraph after dinner');
+});
+
+test('onboarding suggests habits and modules from setup context', () => {
+  const { recommendModules, suggestHabits } = fromRoot('services/onboarding.ts');
+  const habits = suggestHabits({ weeklyFocus: 'learn German consistently', energyPattern: 'low', dailyTimeBudget: '5 min' });
+  assert.ok(habits.includes('5 minutes German'));
+  assert.ok(habits.length <= 3);
+
+  const modules = recommendModules({ weeklyFocus: 'finish a project and reduce stress', values: ['health', 'career'] });
+  assert.ok(modules.includes('projects'));
+  assert.ok(modules.includes('health'));
 });
 
 test('event log records lightweight local mutation events', async () => {

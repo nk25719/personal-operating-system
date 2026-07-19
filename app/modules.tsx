@@ -5,6 +5,8 @@ import { Card } from '../components/Card';
 import { HeaderActions } from '../components/HeaderActions';
 import { Chip } from '../components/Visual';
 import { theme } from '../constants/theme';
+import { useAppData } from '../hooks/useAppData';
+import { ModuleKey } from '../types';
 
 const groups = [
   {
@@ -12,31 +14,31 @@ const groups = [
     items: [
       { title: 'Plan', subtitle: 'Organize the day.', route: '/plan', icon: 'calendar' },
       { title: 'Tasks', subtitle: 'Next actions.', route: '/tasks', icon: 'checkbox' },
-      { title: 'Projects', subtitle: 'Active outcomes.', route: '/projects', icon: 'folder-open' },
-      { title: 'Decisions', subtitle: 'Choice check.', route: '/decision', icon: 'git-branch' }
+      { title: 'Projects', subtitle: 'Active outcomes.', route: '/projects', icon: 'folder-open', moduleKey: 'projects' },
+      { title: 'Decisions', subtitle: 'Choice check.', route: '/decision', icon: 'git-branch', moduleKey: 'decision' }
     ]
   },
   {
     title: 'Growth',
     items: [
-      { title: 'Habits', subtitle: 'Steady practices.', route: '/habits', icon: 'repeat' },
-      { title: 'Builder', subtitle: 'Shape POS.', route: '/builder', icon: 'construct' },
-      { title: 'AI', subtitle: 'Optional advisor.', route: '/ai', icon: 'sparkles' }
+      { title: 'Habits', subtitle: 'Steady practices.', route: '/habits', icon: 'repeat', moduleKey: 'habits' },
+      { title: 'Builder', subtitle: 'Shape POS.', route: '/builder', icon: 'construct', moduleKey: 'builder' },
+      { title: 'AI', subtitle: 'Optional advisor.', route: '/ai', icon: 'sparkles', moduleKey: 'ai' }
     ]
   },
   {
     title: 'Knowledge',
     items: [
-      { title: 'Learning', subtitle: 'Study notes.', route: '/learning', icon: 'book' },
+      { title: 'Learning', subtitle: 'Study notes.', route: '/learning', icon: 'book', moduleKey: 'learning' },
       { title: 'Capture', subtitle: 'Save a thought.', route: '/capture', icon: 'add-circle' }
     ]
   },
   {
     title: 'Wellbeing',
     items: [
-      { title: 'Health', subtitle: 'Body context.', route: '/health', icon: 'heart' },
-      { title: 'Women’s Health', subtitle: 'Cycle notes.', route: '/women-health', icon: 'moon' },
-      { title: 'Environment', subtitle: 'Spaces and values.', route: '/environment', icon: 'leaf' }
+      { title: 'Health', subtitle: 'Body context.', route: '/health', icon: 'heart', moduleKey: 'health' },
+      { title: 'Women’s Health', subtitle: 'Cycle notes.', route: '/women-health', icon: 'moon', moduleKey: 'womenHealth' },
+      { title: 'Environment', subtitle: 'Spaces and values.', route: '/environment', icon: 'leaf', moduleKey: 'environment' }
     ]
   },
   {
@@ -48,6 +50,8 @@ const groups = [
 ] as const;
 
 export default function ModulesScreen() {
+  const { data } = useAppData();
+  const recommended = new Set(data?.preferences.recommendedModules ?? []);
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.topRow}>
@@ -75,6 +79,7 @@ export default function ModulesScreen() {
                     </View>
                     <Text style={styles.cardTitle}>{item.title}</Text>
                     <Text style={styles.subtitle}>{item.subtitle}</Text>
+                    {'moduleKey' in item && recommended.has(item.moduleKey as ModuleKey) ? <Text style={styles.suggested}>Suggested</Text> : null}
                   </Card>
                 </Pressable>
               </Link>
@@ -101,5 +106,6 @@ const styles = StyleSheet.create({
   cardFill: { minHeight: 134, justifyContent: 'space-between' },
   icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   cardTitle: { fontSize: 18, fontWeight: '900', color: theme.colors.text, lineHeight: 22 },
-  subtitle: { color: theme.colors.textMuted, lineHeight: 19, marginTop: 5 }
+  subtitle: { color: theme.colors.textMuted, lineHeight: 19, marginTop: 5 },
+  suggested: { color: theme.colors.accent, fontSize: 12, fontWeight: '900', marginTop: 8, textTransform: 'uppercase' }
 });
