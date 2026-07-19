@@ -14,10 +14,12 @@ export function Button({ title, onPress, variant = 'primary', disabled = false }
 const styles = StyleSheet.create({
   button: {
     borderRadius: 999,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     minHeight: 44,
     minWidth: 44,
+    maxWidth: '100%',
+    flexShrink: 1,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -26,6 +28,6 @@ const styles = StyleSheet.create({
   quiet: { backgroundColor: theme.colors.accentSoft, borderWidth: 1, borderColor: theme.colors.borderSoft },
   pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   disabled: { opacity: 0.55 },
-  text: { color: theme.colors.white, fontWeight: '800', fontSize: 14 },
+  text: { color: theme.colors.white, fontWeight: '800', fontSize: 15, textAlign: 'center', flexShrink: 1 },
   secondaryText: { color: theme.colors.primary }
 });

@@ -16,14 +16,19 @@ export default function RootLayout() {
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
-          paddingBottom: Math.max(insets.bottom, 8)
+          paddingBottom: Math.max(insets.bottom, 8),
+          minHeight: 58 + Math.max(insets.bottom, 0)
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '800'
         }
       }}>
-        <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color, size }) => <AppIcon name="home" color={color} size={size} fallbackLabel="H" /> }} />
-        <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <AppIcon name="today" color={color} size={size} fallbackLabel="T" /> }} />
-        <Tabs.Screen name="plan" options={{ title: 'Plan', tabBarIcon: ({ color, size }) => <AppIcon name="plan" color={color} size={size} fallbackLabel="P" /> }} />
-        <Tabs.Screen name="growth" options={{ title: 'Growth', tabBarIcon: ({ color, size }) => <AppIcon name="growth" color={color} size={size} fallbackLabel="G" /> }} />
-        <Tabs.Screen name="knowledge" options={{ title: 'Knowledge', tabBarIcon: ({ color, size }) => <AppIcon name="knowledge" color={color} size={size} fallbackLabel="K" /> }} />
+        <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color, size }) => <AppIcon iconKey="home" color={color} size={size} /> }} />
+        <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <AppIcon iconKey="today" color={color} size={size} /> }} />
+        <Tabs.Screen name="plan" options={{ title: 'Plan', tabBarIcon: ({ color, size }) => <AppIcon iconKey="plan" color={color} size={size} /> }} />
+        <Tabs.Screen name="growth" options={{ title: 'Growth', tabBarIcon: ({ color, size }) => <AppIcon iconKey="growth" color={color} size={size} /> }} />
+        <Tabs.Screen name="knowledge" options={{ title: 'Knowledge', tabBarIcon: ({ color, size }) => <AppIcon iconKey="knowledge" color={color} size={size} /> }} />
         <Tabs.Screen name="relationships" options={{ href: null }} />
         <Tabs.Screen name="modules" options={{ href: null }} />
         <Tabs.Screen name="capture" options={{ href: null }} />

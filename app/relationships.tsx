@@ -100,12 +100,12 @@ function Icon({ name }: { name: AppIconName }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 16, paddingTop: 56, paddingBottom: 64 },
-  title: { fontSize: 34, fontWeight: '900', color: theme.colors.text, lineHeight: 38 },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 48, paddingBottom: 64 },
+  title: { fontSize: 30, fontWeight: '900', color: theme.colors.text, lineHeight: 34, flexShrink: 1 },
   subtitle: { color: theme.colors.textMuted, marginTop: 8, marginBottom: 16, lineHeight: 22 },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
-  copy: { flex: 1 },
+  copy: { flex: 1, minWidth: 0 },
   cardLabel: { color: theme.colors.accent, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12, marginBottom: 5 },
   cardTitle: { fontSize: 20, fontWeight: '900', color: theme.colors.text, lineHeight: 25 },
   muted: { color: theme.colors.textMuted, lineHeight: 20, marginTop: 4 },

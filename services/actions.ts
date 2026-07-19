@@ -40,11 +40,27 @@ export type TodoAlignment = {
 };
 
 export function parseBulkActions(text: string): string[] {
-  return text
-    .split(/\r?\n/)
-    .map(line => line.trim())
-    .map(line => line.replace(/^[-*•]\s+/, '').replace(/^\d+[.)]\s+/, '').trim())
-    .filter(Boolean);
+  const seen = new Set<string>();
+  const items: string[] = [];
+
+  for (const line of text.split(/\r?\n/)) {
+    for (const rawItem of line.split(/[;,]/)) {
+      const item = cleanBulkAction(rawItem);
+      if (!item || seen.has(item)) continue;
+      seen.add(item);
+      items.push(item);
+    }
+  }
+
+  return items;
+}
+
+function cleanBulkAction(item: string) {
+  return item
+    .trim()
+    .replace(/^[-*•]\s*/, '')
+    .replace(/^\d+\s*(?:[.)]|-)\s*/, '')
+    .trim();
 }
 
 export function createTaskFromInput(input: CreateTaskInput, now = Date.now()): Task {

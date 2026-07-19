@@ -5,6 +5,7 @@ import { Field } from '../components/Field';
 import { Button } from '../components/Button';
 import { useAppData } from '../hooks/useAppData';
 import { Character } from '../types';
+import { theme } from '../constants/theme';
 
 export default function ProfileScreen() {
   const { data, updateData, updateCharacter: mutateCharacter, loading } = useAppData();
@@ -50,10 +51,9 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f6f3ec' },
-  content: { padding: 18, paddingTop: 58, paddingBottom: 44 },
-  title: { fontSize: 36, fontWeight: '900', color: '#24322f' },
-  subtitle: { color: '#68766f', marginTop: 8, marginBottom: 16, lineHeight: 22 },
-  cardTitle: { fontSize: 22, fontWeight: '900', marginBottom: 12, color: '#24322f' },
-  note: { color: '#68766f', lineHeight: 21, marginTop: 8 }
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 48, paddingBottom: 64 },
+  subtitle: { color: theme.colors.textMuted, marginTop: 8, marginBottom: 16, lineHeight: 22 },
+  cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: theme.colors.text, flexShrink: 1 },
+  note: { color: theme.colors.textMuted, lineHeight: 21, marginTop: 8 }
 });

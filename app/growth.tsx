@@ -268,10 +268,10 @@ function formatEvent(event: MutationEvent) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 18, paddingTop: 58, paddingBottom: 44 },
-  topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
-  titleBlock: { flex: 1 },
-  title: { fontSize: 34, fontWeight: '900', color: theme.colors.text },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 48, paddingBottom: 64 },
+  topRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
+  titleBlock: { flex: 1, minWidth: 0 },
+  title: { fontSize: 30, lineHeight: 34, fontWeight: '900', color: theme.colors.text, flexShrink: 1 },
   subtitle: { color: theme.colors.textMuted, marginTop: 8, marginBottom: 16, lineHeight: 22 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
   cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 10, color: theme.colors.text },

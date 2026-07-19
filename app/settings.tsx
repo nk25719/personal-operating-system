@@ -167,7 +167,7 @@ export default function SettingsScreen() {
 }
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 18, paddingTop: 64 },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 48, paddingBottom: 64 },
   note: { color: theme.colors.textMuted, marginTop: 8, lineHeight: 20 },
   privacyLine: { color: theme.colors.text, marginTop: 8, lineHeight: 21 },
   warning: { color: theme.colors.warning, marginTop: 10, lineHeight: 20, fontWeight: '800' },
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10, marginBottom: 16 },
   metricRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
-  iconCheck: { width: '30%', alignItems: 'center', gap: 6 },
+  iconCheck: { width: 78, maxWidth: '31%', alignItems: 'center', gap: 6, minWidth: 0 },
   iconCircle: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceSoft },
   iconLabel: { color: theme.colors.textMuted, fontSize: 11, fontWeight: '800', textAlign: 'center' },
   cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12, color: theme.colors.text },

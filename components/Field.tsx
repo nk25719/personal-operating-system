@@ -10,8 +10,8 @@ export function Field({ label, value, onChangeText, placeholder, multiline = fal
   );
 }
 const styles = StyleSheet.create({
-  wrap: { marginBottom: 14 },
-  label: { fontWeight: '700', marginBottom: 8, color: theme.colors.text, fontSize: 15 },
-  input: { backgroundColor: theme.colors.background, borderRadius: 12, padding: 14, fontSize: 16, minHeight: 44, color: theme.colors.text },
+  wrap: { width: '100%', minWidth: 0, marginBottom: 14 },
+  label: { fontWeight: '700', marginBottom: 8, color: theme.colors.text, fontSize: 15, flexShrink: 1 },
+  input: { width: '100%', minWidth: 0, backgroundColor: theme.colors.background, borderRadius: 12, padding: 14, fontSize: 16, minHeight: 44, color: theme.colors.text },
   multiline: { minHeight: 110, textAlignVertical: 'top' }
 });

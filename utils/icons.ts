@@ -26,6 +26,34 @@ export const appIconRegistry = {
   notes: 'albums-outline'
 } satisfies Record<string, string>;
 
+export const appIconFallbacks = {
+  home: '⌂',
+  today: '◷',
+  plan: '☑',
+  review: '▥',
+  growth: '↗',
+  knowledge: '▤',
+  modules: '▦',
+  add: '+',
+  profile: '◉',
+  settings: '⚙',
+  capture: '✎',
+  habits: '↻',
+  projects: '▣',
+  health: '♡',
+  relationships: '♧',
+  learning: '⌁',
+  tasks: '☑',
+  decision: '◇',
+  builder: '⚒',
+  ai: '✦',
+  environment: '♧',
+  womenHealth: '♀',
+  lifeClock: '◷',
+  back: '‹',
+  notes: '☰'
+} satisfies Record<keyof typeof appIconRegistry, string>;
+
 export type AppIconName = keyof typeof appIconRegistry;
 
 export function isAppIconName(name: string): name is AppIconName {
@@ -34,4 +62,8 @@ export function isAppIconName(name: string): name is AppIconName {
 
 export function getAppIconGlyph(name: AppIconName) {
   return appIconRegistry[name];
+}
+
+export function getAppIconFallback(name: AppIconName) {
+  return appIconFallbacks[name];
 }

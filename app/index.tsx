@@ -99,16 +99,16 @@ function getShortWhy(recommendation: Recommendation) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 16, paddingTop: 56, paddingBottom: 64 },
-  topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
-  titleBlock: { flex: 1 },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 48, paddingBottom: 64 },
+  topRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
+  titleBlock: { flex: 1, minWidth: 0 },
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 11 },
-  title: { fontSize: 34, fontWeight: '900', color: theme.colors.text, marginTop: 6, lineHeight: 38 },
+  title: { fontSize: 30, fontWeight: '900', color: theme.colors.text, marginTop: 6, lineHeight: 34, flexShrink: 1 },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
-  copy: { flex: 1 },
+  copy: { flex: 1, minWidth: 0 },
   cardLabel: { color: theme.colors.accent, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12, marginBottom: 5 },
-  cardTitle: { fontSize: 20, fontWeight: '900', color: theme.colors.text, lineHeight: 25 },
+  cardTitle: { fontSize: 20, fontWeight: '900', color: theme.colors.text, lineHeight: 25, flexShrink: 1 },
   body: { fontSize: 15, color: theme.colors.text, lineHeight: 21, marginTop: 4 },
   muted: { color: theme.colors.textMuted, lineHeight: 20, marginTop: 4 }
 });

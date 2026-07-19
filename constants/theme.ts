@@ -23,6 +23,10 @@ export const theme = {
   },
   spacing: {
     screen: 16,
+    screenWide: 24,
     card: 16
+  },
+  layout: {
+    maxWidth: 760
   }
 } as const;

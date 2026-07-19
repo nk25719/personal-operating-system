@@ -94,7 +94,7 @@ export default function TodayScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingTop: 56 + insets.top }]}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingTop: 48 + insets.top }]}>
       <View style={styles.hero}>
         <View style={styles.heroRow}>
           <View style={styles.heroCopy}>
@@ -167,13 +167,13 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 16, paddingBottom: 24 },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingBottom: 24 },
   hero: { marginBottom: 16 },
-  heroRow: { flexDirection: 'row', gap: 12, alignItems: 'center', justifyContent: 'space-between' },
-  heroActions: { alignItems: 'flex-end', gap: 8 },
-  heroCopy: { flex: 1 },
+  heroRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between' },
+  heroActions: { alignItems: 'flex-end', gap: 8, maxWidth: '100%' },
+  heroCopy: { flex: 1, minWidth: 0 },
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 11 },
-  title: { fontSize: 32, fontWeight: '900', color: theme.colors.text, marginTop: 6, letterSpacing: -0.5, lineHeight: 36 },
+  title: { fontSize: 30, fontWeight: '900', color: theme.colors.text, marginTop: 6, lineHeight: 34, flexShrink: 1 },
   cardLabel: { color: theme.colors.accent, fontWeight: '900', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12 },
   cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 8, color: theme.colors.text, lineHeight: 24, flexShrink: 1 },
   habitTitleRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 },

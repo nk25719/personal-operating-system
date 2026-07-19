@@ -242,11 +242,11 @@ function isDone(task: Task) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 16, paddingTop: 56, paddingBottom: 64 },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 48, paddingBottom: 64 },
   subtitle: { color: theme.colors.textMuted, marginTop: 8, marginBottom: 16, lineHeight: 21, fontSize: 15 },
   cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: theme.colors.text },
   taskCard: { borderTopWidth: 1, borderTopColor: theme.colors.border, paddingTop: 14, marginTop: 14 },
-  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 },
+  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12, minWidth: 0 },
   meta: { marginTop: 8, color: theme.colors.textMuted, fontWeight: '700' },
   body: { color: theme.colors.text, lineHeight: 22 },
   message: { color: theme.colors.primary, fontWeight: '800', lineHeight: 20 },

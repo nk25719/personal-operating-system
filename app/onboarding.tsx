@@ -213,12 +213,12 @@ const titles = ['Who are you becoming?', 'What matters?', 'What needs focus?', '
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 18, paddingTop: 72, paddingBottom: 48 },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 56, paddingBottom: 48 },
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1, fontSize: 12 },
-  title: { fontSize: 32, fontWeight: '900', color: theme.colors.text, lineHeight: 36, marginTop: 8 },
+  title: { fontSize: 30, fontWeight: '900', color: theme.colors.text, lineHeight: 34, marginTop: 8, flexShrink: 1 },
   step: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16, fontWeight: '800' },
   message: { color: theme.colors.warning, fontWeight: '800', lineHeight: 20, marginBottom: 12 },
-  cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: theme.colors.text },
+  cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: theme.colors.text, flexShrink: 1 },
   label: { color: theme.colors.accent, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12, marginBottom: 8 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }
 });

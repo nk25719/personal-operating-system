@@ -154,13 +154,13 @@ function averageProjectProgress(projects: Project[]) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 16, paddingTop: 56, paddingBottom: 64 },
-  topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
-  title: { flex: 1, fontSize: 34, fontWeight: '900', color: theme.colors.text },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 48, paddingBottom: 64 },
+  topRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
+  title: { flex: 1, minWidth: 0, fontSize: 30, fontWeight: '900', color: theme.colors.text, lineHeight: 34 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, marginBottom: 16 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, borderWidth: 1, borderColor: theme.colors.border, alignItems: 'center', justifyContent: 'center' },
-  copy: { flex: 1 },
+  copy: { flex: 1, minWidth: 0 },
   sectionTitle: { fontSize: 18, fontWeight: '900', color: theme.colors.text },
   status: { color: theme.colors.textMuted, fontWeight: '800', marginTop: 3 },
   toolGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },

@@ -291,16 +291,21 @@ test('modules screen manifest restores every POS module route', () => {
 });
 
 test('module and top-action icon contracts are complete', () => {
-  const { appIconRegistry } = fromRoot('utils/icons.ts');
+  const { appIconFallbacks, appIconRegistry } = fromRoot('utils/icons.ts');
   const { moduleCards } = fromRoot('utils/modules.ts');
   const { topActionItems } = fromRoot('utils/topActions.ts');
 
   for (const module of moduleCards) {
     assert.ok(Object.hasOwn(appIconRegistry, module.iconKey), `${module.iconKey} should exist in icon registry`);
+    assert.ok(appIconFallbacks[module.iconKey], `${module.iconKey} should have a web-safe fallback`);
   }
   assert.deepEqual(topActionItems.map(item => item.label), ['Add to-do', 'Modules', 'Profile', 'Settings']);
   assert.equal(topActionItems.some(item => item.label === 'Modules' && item.href === '/modules'), true);
   assert.equal(topActionItems.some(item => item.label === 'Paste list'), false);
+  for (const item of topActionItems.filter(item => item.iconKey)) {
+    assert.ok(Object.hasOwn(appIconRegistry, item.iconKey), `${item.iconKey} should exist in icon registry`);
+    assert.ok(appIconFallbacks[item.iconKey], `${item.iconKey} should have a web-safe fallback`);
+  }
 });
 
 test('onboarding suggests habits and modules from setup context', () => {
@@ -488,6 +493,20 @@ test('bulk parser handles bullets and numbered lists', () => {
     'Prepare slides',
     'Buy groceries',
     'Book appointment'
+  ]);
+});
+
+test('bulk parser handles comma and semicolon separated items', () => {
+  const { parseBulkActions } = fromRoot('services/actions.ts');
+  assert.deepEqual(parseBulkActions('Call Robert, review FLOSCOM notes, send email'), [
+    'Call Robert',
+    'review FLOSCOM notes',
+    'send email'
+  ]);
+  assert.deepEqual(parseBulkActions('1 - German practice; 2. Review paper; • Add Krake notes; Review paper'), [
+    'German practice',
+    'Review paper',
+    'Add Krake notes'
   ]);
 });
 

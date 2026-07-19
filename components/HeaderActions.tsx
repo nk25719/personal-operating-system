@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { theme } from '../constants/theme';
-import { AppIcon } from './AppIcon';
 import { topActionItems } from '../utils/topActions';
+import { AppIcon } from './AppIcon';
 
 export function HeaderActions() {
   const addTodo = topActionItems.find(item => item.key === 'addTodo');
@@ -22,22 +22,22 @@ export function HeaderActions() {
         ) : null}
         {modules ? (
           <Link href={modules.href} asChild>
-            <Pressable accessibilityLabel="Open modules" accessibilityRole="button" style={styles.button}>
-              <AppIcon name="add" size={24} fallbackLabel="+" />
+            <Pressable accessibilityLabel="Open modules" accessibilityRole="button" style={styles.secondaryTextButton}>
+              <Text style={styles.secondaryTextButtonLabel}>+ Modules</Text>
             </Pressable>
           </Link>
         ) : null}
         {profile ? (
           <Link href={profile.href} asChild>
             <Pressable accessibilityLabel="Open profile" accessibilityRole="button" style={styles.button}>
-              <AppIcon name="profile" size={24} fallbackLabel="Me" />
+              <AppIcon iconKey="profile" size={20} />
             </Pressable>
           </Link>
         ) : null}
         {settings ? (
           <Link href={settings.href} asChild>
-            <Pressable accessibilityLabel="Open settings" accessibilityRole="button" style={styles.button}>
-              <AppIcon name="settings" size={22} fallbackLabel="Set" />
+            <Pressable accessibilityLabel="Open settings" accessibilityRole="button" style={styles.buttonWide}>
+              <AppIcon iconKey="settings" size={20} />
             </Pressable>
           </Link>
         ) : null}
@@ -47,10 +47,10 @@ export function HeaderActions() {
 }
 
 const styles = StyleSheet.create({
-  wrap: { alignItems: 'flex-end', zIndex: 10 },
-  actions: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  wrap: { alignItems: 'flex-end', zIndex: 10, maxWidth: '100%', minWidth: 0 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'flex-end', maxWidth: '100%' },
   button: {
-    width: 42,
+    minWidth: 44,
     height: 42,
     borderRadius: 21,
     backgroundColor: theme.colors.surface,
@@ -58,7 +58,18 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    textAlign: 'center'
+    paddingHorizontal: 10
+  },
+  buttonWide: {
+    minWidth: 44,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12
   },
   textButton: {
     minHeight: 42,
@@ -68,5 +79,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  textButtonLabel: { color: theme.colors.white, fontWeight: '900', fontSize: 13 }
+  secondaryTextButton: {
+    minHeight: 42,
+    borderRadius: 21,
+    paddingHorizontal: 12,
+    backgroundColor: theme.colors.primarySoft,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  textButtonLabel: { color: theme.colors.white, fontWeight: '900', fontSize: 14 },
+  secondaryTextButtonLabel: { color: theme.colors.primary, fontWeight: '900', fontSize: 14 }
 });

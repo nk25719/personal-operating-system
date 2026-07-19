@@ -139,11 +139,11 @@ export default function AuthScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: 18, paddingTop: 72, paddingBottom: 48 },
+  content: { width: '100%', maxWidth: theme.layout.maxWidth, alignSelf: 'center', padding: theme.spacing.screen, paddingTop: 56, paddingBottom: 48 },
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1, fontSize: 12 },
-  title: { fontSize: 34, fontWeight: '900', color: theme.colors.text, lineHeight: 38, marginTop: 8 },
+  title: { fontSize: 30, fontWeight: '900', color: theme.colors.text, lineHeight: 34, marginTop: 8, flexShrink: 1 },
   chips: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 12, marginBottom: 16 },
-  cardTitle: { fontSize: 20, fontWeight: '900', color: theme.colors.text, marginBottom: 8 },
+  cardTitle: { fontSize: 20, fontWeight: '900', color: theme.colors.text, marginBottom: 8, flexShrink: 1 },
   body: { color: theme.colors.text, lineHeight: 22 },
   message: { color: theme.colors.warning, lineHeight: 20, marginBottom: 12, fontWeight: '800' },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }

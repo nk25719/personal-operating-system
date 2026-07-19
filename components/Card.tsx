@@ -10,6 +10,8 @@ export function Card({ children, variant = 'default', style }: CardProps) {
 
 const styles = StyleSheet.create({
   card: {
+    width: '100%',
+    minWidth: 0,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.card,
     padding: theme.spacing.card,
