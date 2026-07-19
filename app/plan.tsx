@@ -54,7 +54,7 @@ export default function PlanScreen() {
           <Card key={section.key}>
             <View style={styles.row}>
               <View style={styles.icon}>
-                <AppIcon name={section.icon as AppIconName} size={20} color={theme.colors.primary} fallbackLabel={section.title.slice(0, 2)} />
+                <AppIcon name={section.icon as AppIconName} size={20} color={theme.colors.primary} />
               </View>
               <View style={styles.copy}>
                 <Text style={styles.sectionTitle}>{section.title}</Text>

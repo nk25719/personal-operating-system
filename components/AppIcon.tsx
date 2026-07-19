@@ -1,6 +1,7 @@
 import { Text } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { theme } from '../constants/theme';
-import { AppIconName, getAppIconFallback, isAppIconName } from '../utils/icons';
+import { AppIconName, getAppIconGlyph, isAppIconName } from '../utils/icons';
 
 export type { AppIconName };
 
@@ -39,5 +40,13 @@ export function AppIcon({ iconKey: explicitIconKey, name, size = 22, color = the
     warnIconIssue(iconKey || 'missing');
     return <Text style={fallbackStyle}>{fallbackLabel ?? '?'}</Text>;
   }
-  return <Text style={fallbackStyle}>{fallbackLabel ?? getAppIconFallback(iconKey)}</Text>;
+  return (
+    <Ionicons
+      name={getAppIconGlyph(iconKey) as keyof typeof Ionicons.glyphMap}
+      size={size}
+      color={color}
+      accessibilityElementsHidden
+      importantForAccessibility="no"
+    />
+  );
 }

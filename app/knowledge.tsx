@@ -77,7 +77,7 @@ export default function KnowledgeScreen() {
 function Icon({ name }: { name: AppIconName }) {
   return (
     <View style={styles.icon}>
-      <AppIcon name={name} size={20} fallbackLabel={name.slice(0, 2)} />
+      <AppIcon name={name} size={20} />
     </View>
   );
 }

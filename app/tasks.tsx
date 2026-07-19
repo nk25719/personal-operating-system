@@ -114,6 +114,7 @@ export default function TasksScreen() {
         {mode === 'one' ? (
           <>
             <Field label="Title" value={title} onChangeText={setTitle} placeholder="Call the clinic" />
+            {title.trim() ? <DraftAlignment title={title} notes={notes} data={data} /> : null}
             <SharedFields data={data} scheduledTime="" setScheduledTime={setScheduledTime} dueDate={dueDate} setDueDate={setDueDate} duration={duration} setDuration={setDuration} moduleId={moduleId} setModuleId={setModuleId} projectId={projectId} setProjectId={setProjectId} hideTime />
             <Field label="Notes optional" value={notes} onChangeText={setNotes} multiline />
             <Button title="Add action" onPress={saveOne} />
@@ -123,6 +124,7 @@ export default function TasksScreen() {
         {mode === 'scheduled' ? (
           <>
             <Field label="Title" value={title} onChangeText={setTitle} placeholder="German practice" />
+            {title.trim() ? <DraftAlignment title={title} notes={notes} data={data} /> : null}
             <SharedFields data={data} scheduledTime={scheduledTime} setScheduledTime={setScheduledTime} dueDate={dueDate} setDueDate={setDueDate} duration={duration} setDuration={setDuration} moduleId={moduleId} setModuleId={setModuleId} projectId={projectId} setProjectId={setProjectId} />
             <Field label="Notes optional" value={notes} onChangeText={setNotes} multiline />
             <Button title="Schedule action" onPress={saveOne} />
@@ -138,6 +140,7 @@ export default function TasksScreen() {
               <Button title="Save list" onPress={saveBulk} />
             </View>
             {(bulkItems.length ? bulkItems : parsedBulk).length ? <Text style={styles.preview}>We found {(bulkItems.length ? bulkItems : parsedBulk).length} actions</Text> : null}
+            {(bulkItems.length ? bulkItems : parsedBulk).slice(0, 6).map(item => <DraftAlignment key={`align-${item}`} title={item} notes={notes} data={data} />)}
             {bulkItems.map((item, index) => (
               <View key={`${item}-${index}`} style={styles.previewRow}>
                 <Field label={`Action ${index + 1}`} value={item} onChangeText={value => setBulkItems(current => current.map((entry, entryIndex) => entryIndex === index ? value : entry))} />
@@ -188,6 +191,17 @@ export default function TasksScreen() {
     setMinimum('');
     setSelectedDays([]);
   }
+}
+
+function DraftAlignment({ title, notes, data }: { title: string; notes?: string; data: NonNullable<ReturnType<typeof useAppData>['data']> }) {
+  const alignment = evaluateTodoAlignment({ title, notes, area: 'Personal' }, data);
+  return (
+    <View style={styles.alignment}>
+      <Text style={styles.alignmentLabel}>{alignmentLabel(alignment)}</Text>
+      <Text style={styles.alignmentReason}>{alignment.reason}</Text>
+      {alignment.suggestedRewrite ? <Text style={styles.alignmentReason}>Suggested: {alignment.suggestedRewrite}</Text> : null}
+    </View>
+  );
 }
 
 function SharedFields({ data, scheduledTime, setScheduledTime, dueDate, setDueDate, duration, setDuration, moduleId, setModuleId, projectId, setProjectId, hideTime = false }: {

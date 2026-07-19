@@ -408,6 +408,64 @@ test('planner falls back locally when no OpenAI key exists', async () => {
   assert.ok(plan.projects.length > 0);
 });
 
+test('local AI planner generates identity-based habits and modules', async () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { suggestIdentityPlan } = fromRoot('services/aiPlanner.ts');
+  const data = {
+    ...defaultData,
+    preferences: { ...defaultData.preferences, dailyTimeBudget: '5 min', preferredTone: 'gentle' },
+    characters: [{ ...defaultData.characters[0], desiredPerson: 'A healthy language learner', values: ['health'] }]
+  };
+
+  const plan = await suggestIdentityPlan(data);
+  assert.ok(plan.habits.some(habit => /movement/i.test(habit.title)));
+  assert.ok(plan.habits.some(habit => /learning/i.test(habit.title)));
+  assert.ok(plan.habits.every(habit => habit.tinyVersion));
+  assert.ok(plan.recommendedModules.some(module => module.moduleId === 'health'));
+  assert.ok(plan.recommendedModules.some(module => module.moduleId === 'learning'));
+});
+
+test('AI response validation rejects malformed output', () => {
+  const { validateAiPlanSuggestion } = fromRoot('services/aiPlanner.ts');
+  assert.equal(validateAiPlanSuggestion({ summary: 'Missing fields' }), null);
+  assert.equal(validateAiPlanSuggestion({
+    summary: 'Useful plan',
+    suggestedValues: ['health'],
+    weeklyFocus: 'move gently',
+    habits: [{ title: 'Movement', why: 'Supports health', tinyVersion: 'Stretch once', timesPerWeek: 3 }],
+    routine: [{ title: 'Stretch', durationMinutes: 5 }],
+    nextActions: [{ title: 'Stretch once', reason: 'Small start', estimatedMinutes: 5 }],
+    recommendedModules: [{ moduleId: 'health', reason: 'Supports body habits' }],
+    cautions: [],
+    userChoices: ['accept']
+  }).habits[0].title, 'Movement');
+});
+
+test('AI planner falls back locally with no hosted provider config', async () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { suggestIdentityPlan } = fromRoot('services/aiPlanner.ts');
+  const data = {
+    ...defaultData,
+    characters: [{ ...defaultData.characters[0], desiredPerson: 'An organized calm person', values: ['peace'] }]
+  };
+
+  const plan = await suggestIdentityPlan(data, undefined, { provider: 'openai-compatible' });
+  assert.ok(plan.habits.some(habit => /reset/i.test(habit.title)));
+});
+
+test('AI plan suggestions require approval before writing data', async () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { applyApprovedAiPlan, suggestIdentityPlan } = fromRoot('services/aiPlanner.ts');
+  const plan = await suggestIdentityPlan(defaultData, 'A strong learner');
+
+  assert.equal(defaultData.habits.length, 0);
+  const next = applyApprovedAiPlan(defaultData, plan, 99);
+  assert.equal(defaultData.habits.length, 0);
+  assert.ok(next.habits.length > 0);
+  assert.ok(next.tasks.length > 0);
+  assert.ok(next.preferences.recommendedModules.length >= defaultData.preferences.recommendedModules.length);
+});
+
 test('capture extraction finds actions and module suggestions', () => {
   const { extractActionsFromCapture, suggestNextFromCapture } = fromRoot('services/os.ts');
 

@@ -15,6 +15,43 @@ export type UserPreferences = {
   recommendedModules?: ModuleKey[];
 };
 
+export type AiPlanHabitSuggestion = {
+  title: string;
+  why: string;
+  tinyVersion: string;
+  timesPerWeek: number;
+  preferredTime?: string;
+};
+
+export type AiPlanRoutineSuggestion = {
+  title: string;
+  time?: string;
+  durationMinutes?: number;
+};
+
+export type AiPlanNextActionSuggestion = {
+  title: string;
+  reason: string;
+  estimatedMinutes: number;
+};
+
+export type AiPlanModuleSuggestion = {
+  moduleId: ModuleKey;
+  reason: string;
+};
+
+export type AiPlanSuggestion = {
+  summary: string;
+  suggestedValues: string[];
+  weeklyFocus: string;
+  habits: AiPlanHabitSuggestion[];
+  routine: AiPlanRoutineSuggestion[];
+  nextActions: AiPlanNextActionSuggestion[];
+  recommendedModules: AiPlanModuleSuggestion[];
+  cautions: string[];
+  userChoices: ('accept' | 'edit' | 'skip')[];
+};
+
 export type UserProfile = {
   authUserId?: string;
   email?: string | null;

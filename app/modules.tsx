@@ -28,7 +28,7 @@ export default function ModulesScreen() {
             <Card key={item.key} style={styles.card}>
               <View style={styles.cardRow}>
                 <View style={styles.icon}>
-                  <AppIcon name={item.iconKey} size={22} fallbackLabel={item.title.slice(0, 2)} />
+                  <AppIcon name={item.iconKey} size={22} />
                 </View>
                 <View style={styles.copy}>
                   <View style={styles.titleRow}>

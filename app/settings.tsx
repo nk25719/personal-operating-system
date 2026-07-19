@@ -125,7 +125,7 @@ export default function SettingsScreen() {
           {(Object.keys(appIconRegistry) as AppIconName[]).map(iconKey => (
             <View key={iconKey} style={styles.iconCheck}>
               <View style={styles.iconCircle}>
-                <AppIcon name={iconKey} size={20} fallbackLabel={iconKey.slice(0, 2)} />
+                <AppIcon name={iconKey} size={20} />
               </View>
               <Text style={styles.iconLabel}>{iconKey}</Text>
             </View>

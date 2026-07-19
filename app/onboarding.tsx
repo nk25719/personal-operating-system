@@ -8,7 +8,8 @@ import { Chip } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
 import { useAuth } from '../hooks/useAuth';
 import { applyOnboarding, DailyTimeBudget, EnergyPattern, LifeSeason, OnboardingTone, recommendModules, suggestHabits, validateOnboardingInput } from '../services/onboarding';
-import { ModuleKey } from '../types';
+import { suggestIdentityPlan } from '../services/aiPlanner';
+import { AiPlanSuggestion, ModuleKey } from '../types';
 import { theme } from '../constants/theme';
 
 const seasons: LifeSeason[] = ['rebuilding', 'growing', 'overwhelmed', 'steady', 'exploring'];
@@ -50,6 +51,8 @@ export default function OnboardingScreen() {
   const recommendedModules = useMemo(() => recommendModules({ weeklyFocus, values: selectedValues }), [weeklyFocus, selectedValues]);
   const [modules, setModules] = useState<ModuleKey[]>(recommendedModules);
   const [saving, setSaving] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+  const [planSuggestion, setPlanSuggestion] = useState<AiPlanSuggestion | null>(null);
   const [message, setMessage] = useState('');
 
   if (loading || !data) return null;
@@ -108,6 +111,29 @@ export default function OnboardingScreen() {
     else finish();
   };
 
+  const suggestPlan = async () => {
+    if (suggesting) return;
+    if (!desiredPerson.trim()) {
+      setMessage('Write the person you are becoming first.');
+      return;
+    }
+    setSuggesting(true);
+    setMessage('');
+    try {
+      const suggestion = await suggestIdentityPlan(data, desiredPerson);
+      setPlanSuggestion(suggestion);
+      if (!weeklyFocus.trim() || weeklyFocus === 'build routine') setWeeklyFocus(suggestion.weeklyFocus);
+      if (!selectedValues.length) setSelectedValues(suggestion.suggestedValues.slice(0, 3));
+      setHabits(suggestion.habits.map(habit => habit.tinyVersion || habit.title).slice(0, 5));
+      setModules(current => [...new Set([...current, ...suggestion.recommendedModules.map(module => module.moduleId)])]);
+      setStep(4);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Suggestions are not available right now.');
+    } finally {
+      setSuggesting(false);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.eyebrow}>First setup</Text>
@@ -121,6 +147,7 @@ export default function OnboardingScreen() {
           <Field label="Username" value={username} onChangeText={setUsername} placeholder="yourname" />
           <Field label="Pronouns optional" value={pronouns} onChangeText={setPronouns} placeholder="Optional" />
           <Field label="Person I am becoming" value={desiredPerson} onChangeText={setDesiredPerson} placeholder="Steady, healthy, focused" />
+          <Button title={suggesting ? 'Suggesting...' : 'Suggest habits'} variant="secondary" onPress={suggestPlan} disabled={suggesting} />
           <Text style={styles.label}>Season</Text>
           <ChipRow options={seasons} selected={[currentSeason]} onPress={value => setCurrentSeason(value as LifeSeason)} />
         </Card>
@@ -161,8 +188,20 @@ export default function OnboardingScreen() {
         <>
           <Card>
             <Text style={styles.cardTitle}>Starting habits</Text>
+            {planSuggestion ? <Text style={styles.note}>{planSuggestion.summary}</Text> : null}
             <ChipRow options={habitSuggestions} selected={habits} onPress={toggleHabit} />
             <Field label="Edit first habit" value={habits[0] ?? ''} onChangeText={value => setHabits([value, ...habits.slice(1)])} />
+            {planSuggestion?.habits.map((habit, index) => (
+              <View key={`${habit.title}-${index}`} style={styles.suggestionRow}>
+                <View style={styles.suggestionText}>
+                  <Text style={styles.suggestionTitle}>{habit.title}</Text>
+                  <Text style={styles.note}>{habit.tinyVersion}</Text>
+                  <Text style={styles.note}>{habit.why}</Text>
+                </View>
+                <Button title={habits.includes(habit.tinyVersion) ? 'Remove' : 'Keep'} variant={habits.includes(habit.tinyVersion) ? 'secondary' : 'primary'} onPress={() => toggleSuggestedHabit(habit.tinyVersion)} />
+              </View>
+            ))}
+            <Button title={suggesting ? 'Regenerating...' : 'Regenerate'} variant="secondary" onPress={suggestPlan} disabled={suggesting} />
           </Card>
           <Card>
             <Text style={styles.cardTitle}>Modules</Text>
@@ -181,7 +220,11 @@ export default function OnboardingScreen() {
   }
 
   function toggleHabit(value: string) {
-    setHabits(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value].slice(0, 3));
+    setHabits(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value].slice(0, 5));
+  }
+
+  function toggleSuggestedHabit(value: string) {
+    setHabits(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value].slice(0, 5));
   }
 
   function toggleArea(value: string) {
@@ -220,5 +263,9 @@ const styles = StyleSheet.create({
   message: { color: theme.colors.warning, fontWeight: '800', lineHeight: 20, marginBottom: 12 },
   cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: theme.colors.text, flexShrink: 1 },
   label: { color: theme.colors.accent, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12, marginBottom: 8 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 },
+  note: { color: theme.colors.textMuted, lineHeight: 20, marginBottom: 8 },
+  suggestionRow: { borderTopWidth: 1, borderTopColor: theme.colors.border, paddingTop: 12, marginTop: 10, flexDirection: 'row', gap: 10, alignItems: 'center' },
+  suggestionText: { flex: 1, minWidth: 0 },
+  suggestionTitle: { color: theme.colors.text, fontWeight: '900', marginBottom: 4 }
 });
