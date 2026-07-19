@@ -5,71 +5,89 @@ import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Field } from '../components/Field';
 import { Chip } from '../components/Visual';
-import { useAppData } from '../hooks/useAppData';
 import { useAuth } from '../hooks/useAuth';
 import { isFirebaseConfigured, logInWithEmail, logInWithGoogle, signUpWithEmail } from '../services/firebase';
 import { shouldShowOnboarding } from '../services/onboarding';
+import { getAuthMessage } from '../services/authErrors';
+import { getAppData, setAppData, setStorageUser } from '../utils/storage';
 import { theme } from '../constants/theme';
 
 export default function AuthScreen() {
-  const { data, updateData } = useAppData();
   const { configured } = useAuth();
-  const [mode, setMode] = useState<'login' | 'signup'>('signup');
+  const [mode, setMode] = useState<'landing' | 'login' | 'signup'>('landing');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [message, setMessage] = useState('');
+  const [saving, setSaving] = useState(false);
   const firebaseReady = configured && isFirebaseConfigured();
 
   const saveUser = async (user: { uid: string; email: string | null; displayName: string | null }) => {
-    await updateData(current => ({
+    setStorageUser(user.uid);
+    const current = await getAppData(user.uid);
+    if (!current) return;
+    const next = {
       ...current,
       userProfile: {
         ...current.userProfile,
         authUserId: user.uid,
         email: user.email,
         username: username.trim() || current.userProfile?.username || user.displayName || '',
-        displayName: displayName.trim() || user.displayName || current.userProfile?.displayName || ''
+        displayName: user.displayName || username.trim() || current.userProfile?.displayName || ''
       },
       preferences: {
         ...current.preferences,
-        preferredName: displayName.trim() || user.displayName || current.preferences.preferredName
+        preferredName: user.displayName || username.trim() || current.preferences.preferredName
       }
-    }), { type: 'data.updated', payload: { reason: 'auth.profile_saved' } });
-    router.replace(data && shouldShowOnboarding(data) ? '/onboarding' : '/');
+    };
+    await setAppData(next, user.uid);
+    router.replace(shouldShowOnboarding(next) ? '/onboarding' : '/');
   };
 
   const submit = async () => {
+    if (saving) return;
     if (!firebaseReady) {
       setMessage('Firebase config is needed before login can run.');
       return;
     }
+    if (mode === 'signup' && password !== confirmPassword) {
+      setMessage('Passwords do not match.');
+      return;
+    }
     try {
+      setSaving(true);
+      setMessage('');
       const user = mode === 'signup'
-        ? await signUpWithEmail(email, password, displayName || username)
+        ? await signUpWithEmail(email, password, username)
         : await logInWithEmail(email, password);
       await saveUser(user);
     } catch (error) {
       setMessage(getAuthMessage(error));
+    } finally {
+      setSaving(false);
     }
   };
 
   const google = async () => {
     try {
+      setSaving(true);
+      setMessage('');
       await saveUser(await logInWithGoogle());
     } catch (error) {
       setMessage(getAuthMessage(error));
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.eyebrow}>POS</Text>
-      <Text style={styles.title}>{mode === 'signup' ? 'Create your space.' : 'Welcome back.'}</Text>
+      <Text style={styles.title}>{mode === 'landing' ? 'Start with your own space.' : mode === 'signup' ? 'Create account.' : 'Log in.'}</Text>
       <View style={styles.chips}>
-        <Chip label="Firebase Auth" />
-        <Chip label="Local profile" />
+        <Chip label="Private account" />
+        <Chip label="Local data" />
       </View>
 
       {!firebaseReady ? (
@@ -80,27 +98,43 @@ export default function AuthScreen() {
       ) : null}
 
       <Card>
-        {mode === 'signup' ? (
+        {mode === 'landing' ? (
           <>
-            <Field label="Display name" value={displayName} onChangeText={setDisplayName} placeholder="Nagham" />
-            <Field label="Username" value={username} onChangeText={setUsername} placeholder="nagham" />
+            {message ? <Text style={styles.message}>{message}</Text> : null}
+            <Button title="Create account" onPress={() => { setMessage(''); setMode('signup'); }} />
+            <View style={styles.row}>
+              <Button title="Log in" variant="secondary" onPress={() => { setMessage(''); setMode('login'); }} />
+              <Button title="Continue with Google" variant="secondary" onPress={google} disabled={saving || !firebaseReady} />
+            </View>
           </>
-        ) : null}
-        <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@example.com" />
-        <Field label="Password" value={password} onChangeText={setPassword} placeholder="At least 6 characters" secureTextEntry />
-        {message ? <Text style={styles.message}>{message}</Text> : null}
-        <Button title={mode === 'signup' ? 'Create account' : 'Log in'} onPress={submit} />
-        <View style={styles.row}>
-          <Button title={mode === 'signup' ? 'I have an account' : 'Create account'} variant="secondary" onPress={() => setMode(mode === 'signup' ? 'login' : 'signup')} />
-          <Button title="Google" variant="secondary" onPress={google} />
-        </View>
+        ) : mode === 'signup' ? (
+          <>
+            <Field label="Username" value={username} onChangeText={setUsername} placeholder="yourname" />
+            <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@example.com" />
+            <Field label="Password" value={password} onChangeText={setPassword} placeholder="At least 6 characters" secureTextEntry />
+            <Field label="Confirm password" value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Repeat password" secureTextEntry />
+            {message ? <Text style={styles.message}>{message}</Text> : null}
+            <Button title={saving ? 'Creating...' : 'Create account'} onPress={submit} disabled={saving} />
+            <View style={styles.row}>
+              <Button title="Already have an account? Log in" variant="secondary" onPress={() => { setMessage(''); setMode('login'); }} />
+              <Button title="Continue with Google" variant="secondary" onPress={google} disabled={saving || !firebaseReady} />
+            </View>
+          </>
+        ) : (
+          <>
+            <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@example.com" />
+            <Field label="Password" value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
+            {message ? <Text style={styles.message}>{message}</Text> : null}
+            <Button title={saving ? 'Logging in...' : 'Log in'} onPress={submit} disabled={saving} />
+            <View style={styles.row}>
+              <Button title="New here? Create account" variant="secondary" onPress={() => { setMessage(''); setMode('signup'); }} />
+              <Button title="Continue with Google" variant="secondary" onPress={google} disabled={saving || !firebaseReady} />
+            </View>
+          </>
+        )}
       </Card>
     </ScrollView>
   );
-}
-
-function getAuthMessage(error: unknown) {
-  return error instanceof Error ? error.message.replace('Firebase: ', '') : 'Auth could not finish. Try again.';
 }
 
 const styles = StyleSheet.create({

@@ -7,6 +7,7 @@ import { Field } from '../components/Field';
 import { Chip, Details, StatCard } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
 import { createTodayCalendarEvents } from '../services/calendar';
+import { logOut } from '../services/firebase';
 import { syncProjectsToNotion } from '../services/notion';
 import { scheduleHabitReminders } from '../services/reminders';
 import { Character } from '../types';
@@ -121,6 +122,7 @@ export default function SettingsScreen() {
           <Button title="Create calendar events" variant="secondary" onPress={async () => setMessage(await createTodayCalendarEvents(data))} />
           <Button title="Sync projects to Notion" variant="secondary" onPress={async () => setMessage(await syncProjectsToNotion(data))} />
           <Button title="Reset local data" variant="secondary" onPress={async () => { await resetAppData(); setMessage('Local data reset. Restart the app.'); }} />
+          <Button title="Log out" variant="secondary" onPress={logOut} />
         </Details>
       </Card>
       <Card>

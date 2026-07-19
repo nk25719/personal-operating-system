@@ -7,6 +7,8 @@ const APP_DATA_KEY = 'pos-app-data-v2';
 const EVENT_LOG_KEY = 'pos-event-log-v1';
 const PLANNER_MEMORY_KEY = 'pos-planner-memory-v1';
 export const BACKUP_SCHEMA_VERSION = 1;
+let activeUserId: string | null = null;
+const appDataListeners = new Set<(data: AppData | null, userId: string | null) => void>();
 type LegacyIntegrationSettings = IntegrationSettings & { aiApiKey?: string; notionToken?: string };
 type LegacyAppData = Omit<AppData, 'integrations'> & { integrations?: LegacyIntegrationSettings };
 type AppBackup = {
@@ -34,9 +36,23 @@ export async function setJSON<T>(key: string, value: T): Promise<void> {
   await AsyncStorage.setItem(key, JSON.stringify(value));
 }
 
-export async function getAppData(): Promise<AppData> {
-  const stored = await getJSON<LegacyAppData | null>(APP_DATA_KEY, null);
-  if (!stored) return defaultData;
+export function setStorageUser(userId: string | null) {
+  activeUserId = userId;
+}
+
+export function getUserScopedStorageKey(baseKey: string, userId = activeUserId): string | null {
+  return userId ? `${baseKey}:${userId}` : null;
+}
+
+export function getAppDataStorageKey(userId = activeUserId) {
+  return getUserScopedStorageKey(APP_DATA_KEY, userId);
+}
+
+export async function getAppData(userId = activeUserId): Promise<AppData | null> {
+  const key = getAppDataStorageKey(userId);
+  if (!key) return null;
+  const stored = await getJSON<LegacyAppData | null>(key, null);
+  if (!stored) return cloneAppData(defaultData);
   const integrations = await migrateAndSanitizeIntegrations(stored.integrations);
   return {
     ...defaultData,
@@ -58,12 +74,25 @@ export async function getAppData(): Promise<AppData> {
   };
 }
 
-export async function setAppData(data: AppData): Promise<void> {
-  await setJSON(APP_DATA_KEY, sanitizeAppData(data));
+export async function setAppData(data: AppData, userId = activeUserId): Promise<void> {
+  const key = getAppDataStorageKey(userId);
+  if (!key) return;
+  const sanitized = sanitizeAppData(data);
+  await setJSON(key, sanitized);
+  notifyAppDataListeners(sanitized, userId);
 }
 
-export async function resetAppData(): Promise<void> {
-  await AsyncStorage.removeItem(APP_DATA_KEY);
+export async function resetAppData(userId = activeUserId): Promise<void> {
+  const key = getAppDataStorageKey(userId);
+  if (key) await AsyncStorage.removeItem(key);
+  notifyAppDataListeners(null, userId);
+}
+
+export function subscribeToAppData(listener: (data: AppData | null, userId: string | null) => void): () => void {
+  appDataListeners.add(listener);
+  return () => {
+    appDataListeners.delete(listener);
+  };
 }
 
 export async function appendMutationEvent(type: MutationEvent['type'], payload?: MutationEvent['payload']): Promise<MutationEvent> {
@@ -74,16 +103,19 @@ export async function appendMutationEvent(type: MutationEvent['type'], payload?:
     payload
   };
   const existing = await getMutationEvents();
-  await setJSON(EVENT_LOG_KEY, [event, ...existing].slice(0, 500));
+  const key = scopedRequiredKey(EVENT_LOG_KEY);
+  if (key) await setJSON(key, [event, ...existing].slice(0, 500));
   return event;
 }
 
 export async function getMutationEvents(): Promise<MutationEvent[]> {
-  return getJSON<MutationEvent[]>(EVENT_LOG_KEY, []);
+  const key = scopedRequiredKey(EVENT_LOG_KEY);
+  return key ? getJSON<MutationEvent[]>(key, []) : [];
 }
 
 export async function clearMutationEvents(): Promise<void> {
-  await AsyncStorage.removeItem(EVENT_LOG_KEY);
+  const key = scopedRequiredKey(EVENT_LOG_KEY);
+  if (key) await AsyncStorage.removeItem(key);
 }
 
 export async function appendPlannerMemory(record: Omit<PlannerMemoryRecord, 'id' | 'createdAt'>): Promise<PlannerMemoryRecord> {
@@ -93,23 +125,28 @@ export async function appendPlannerMemory(record: Omit<PlannerMemoryRecord, 'id'
     ...record
   };
   const existing = await getPlannerMemory();
-  await setJSON(PLANNER_MEMORY_KEY, [entry, ...existing].slice(0, 500));
+  const key = scopedRequiredKey(PLANNER_MEMORY_KEY);
+  if (key) await setJSON(key, [entry, ...existing].slice(0, 500));
   return entry;
 }
 
 export async function getPlannerMemory(): Promise<PlannerMemoryRecord[]> {
-  return getJSON<PlannerMemoryRecord[]>(PLANNER_MEMORY_KEY, []);
+  const key = scopedRequiredKey(PLANNER_MEMORY_KEY);
+  return key ? getJSON<PlannerMemoryRecord[]>(key, []) : [];
 }
 
 export async function updatePlannerMemoryResult(id: string, resultLater: PlannerMemoryRecord['resultLater']): Promise<PlannerMemoryRecord[]> {
   const existing = await getPlannerMemory();
   const next = existing.map(record => record.id === id ? { ...record, resultLater } : record);
-  await setJSON(PLANNER_MEMORY_KEY, next);
+  const key = scopedRequiredKey(PLANNER_MEMORY_KEY);
+  if (key) await setJSON(key, next);
   return next;
 }
 
 export async function exportAppBackup(): Promise<string> {
-  const appData = sanitizeAppData(await getAppData());
+  const current = await getAppData();
+  if (!current) throw new Error('Log in before exporting POS data.');
+  const appData = sanitizeAppData(current);
   const events = await getMutationEvents();
   const plannerMemory = await getPlannerMemory();
   const backup: AppBackup = {
@@ -130,8 +167,10 @@ export async function importAppBackup(raw: string): Promise<AppData> {
     integrations: sanitizeIntegrations(incoming.integrations)
   });
   await setAppData(sanitized);
-  if ('events' in parsed && Array.isArray(parsed.events)) await setJSON(EVENT_LOG_KEY, parsed.events);
-  if ('plannerMemory' in parsed && Array.isArray(parsed.plannerMemory)) await setJSON(PLANNER_MEMORY_KEY, parsed.plannerMemory);
+  const eventKey = scopedRequiredKey(EVENT_LOG_KEY);
+  const memoryKey = scopedRequiredKey(PLANNER_MEMORY_KEY);
+  if (eventKey && 'events' in parsed && Array.isArray(parsed.events)) await setJSON(eventKey, parsed.events);
+  if (memoryKey && 'plannerMemory' in parsed && Array.isArray(parsed.plannerMemory)) await setJSON(memoryKey, parsed.plannerMemory);
   await appendMutationEvent('backup.imported', { schemaVersion: 'schemaVersion' in parsed ? parsed.schemaVersion : 'legacy' });
   return sanitized;
 }
@@ -173,4 +212,16 @@ function parseBackup(raw: string): { parsed: Partial<AppBackup> | LegacyAppData;
   const parsed = JSON.parse(raw) as Partial<AppBackup> | LegacyAppData;
   const incoming = 'appData' in parsed && parsed.appData ? parsed.appData as LegacyAppData : parsed as LegacyAppData;
   return { parsed, incoming };
+}
+
+function scopedRequiredKey(baseKey: string) {
+  return getUserScopedStorageKey(baseKey);
+}
+
+function cloneAppData(data: AppData): AppData {
+  return JSON.parse(JSON.stringify(data)) as AppData;
+}
+
+function notifyAppDataListeners(data: AppData | null, userId: string | null) {
+  appDataListeners.forEach(listener => listener(data, userId));
 }

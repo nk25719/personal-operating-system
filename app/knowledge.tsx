@@ -1,12 +1,12 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { HeaderActions } from '../components/HeaderActions';
 import { Chip, Details, StatCard } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
 import { theme } from '../constants/theme';
+import { AppIcon, AppIconName } from '../components/AppIcon';
 
 export default function KnowledgeScreen() {
   const { data, loading } = useAppData();
@@ -29,7 +29,7 @@ export default function KnowledgeScreen() {
 
       <Card variant="highlight">
         <View style={styles.row}>
-          <Icon name="albums" />
+          <Icon name="notes" />
           <View style={styles.copy}>
             <Text style={styles.cardLabel}>Captures</Text>
             <Text style={styles.cardTitle}>{captures.length} saved</Text>
@@ -41,7 +41,7 @@ export default function KnowledgeScreen() {
 
       <Card>
         <View style={styles.row}>
-          <Icon name="book" />
+          <Icon name="knowledge" />
           <View style={styles.copy}>
             <Text style={styles.cardLabel}>Learning</Text>
             <Text style={styles.cardTitle}>{learning[0]?.name ?? 'No topic yet'}</Text>
@@ -74,10 +74,10 @@ export default function KnowledgeScreen() {
   );
 }
 
-function Icon({ name }: { name: keyof typeof Ionicons.glyphMap }) {
+function Icon({ name }: { name: AppIconName }) {
   return (
     <View style={styles.icon}>
-      <Ionicons name={name} size={20} color={theme.colors.primary} />
+      <AppIcon name={name} size={20} fallbackLabel={name.slice(0, 2)} />
     </View>
   );
 }

@@ -1,6 +1,125 @@
 import { AppData } from '../types';
 
-export const defaultData: AppData = {
+const baseModules: AppData['modules'] = [
+  { key: 'habits', title: 'Habits', enabled: true, purpose: 'Track repeated practices with one tap.', route: '/habits' },
+  { key: 'projects', title: 'Projects', enabled: false, purpose: 'See active outcomes and blockers.', route: '/projects' },
+  { key: 'learning', title: 'Learning', enabled: true, purpose: 'Professional learning plan and resources.', route: '/learning' },
+  { key: 'decision', title: 'Decision Center', enabled: false, purpose: 'Check purchases, outings, and commitments against identity.', route: '/decision' },
+  { key: 'lifeClock', title: 'Life Clock', enabled: false, purpose: 'Optional time-alive and time-left reflection.', route: '/life-clock' },
+  { key: 'womenHealth', title: 'Women Health', enabled: false, purpose: 'Optional cycle and family-planning awareness.', route: '/women-health' },
+  { key: 'health', title: 'Health Profile', enabled: false, purpose: 'Optional constraints for safer habit suggestions.', route: '/health' },
+  { key: 'environment', title: 'Environment & Integrity', enabled: false, purpose: 'Choose social environments and experiences intentionally.', route: '/environment' },
+  { key: 'builder', title: 'Identity Builder', enabled: false, purpose: 'Regenerate schedules from a conversational profile.', route: '/builder' },
+  { key: 'ai', title: 'AI Advisor', enabled: false, purpose: 'Ask for suggestions when tackling a task.', route: '/ai' }
+];
+
+export const emptyUserData: AppData = {
+  userProfile: {
+    authUserId: '',
+    email: '',
+    username: '',
+    displayName: '',
+    pronouns: ''
+  },
+  activeCharacterId: 'self',
+  characters: [
+    {
+      id: 'self',
+      name: 'You',
+      identity: '',
+      desiredPerson: '',
+      dailyObligations: '',
+      missionQuestion: 'What is one useful step today?',
+      values: [],
+      demographics: { biologicalSex: 'preferNotToSay', showWomenHealth: false },
+      healthProfile: {
+        enabled: false,
+        medicalConditions: '',
+        allergies: '',
+        physicalLimitations: '',
+        medications: '',
+        pregnancyStatus: 'preferNotToSay',
+        sleepIssues: '',
+        dietaryPreferences: '',
+        mentalHealthConsiderations: '',
+        painOrEnergyNotes: '',
+        clinicianGuidance: '',
+        habitIntensity: 'gentle',
+        showHealthDisclaimer: true
+      },
+      environmentProfile: {
+        enabled: false,
+        lifePurpose: '',
+        futureSelfStatement: '',
+        integrityDefinition: '',
+        valuesToProtect: [],
+        desiredEnvironments: '',
+        environmentsToAvoid: '',
+        desiredPeople: '',
+        peopleToLimit: '',
+        experiencesToSeek: '',
+        experiencesToAvoid: '',
+        weeklyEnvironmentReview: 'What supported the person you are becoming this week?',
+        integrityScoreMode: 'gentle'
+      }
+    }
+  ],
+  routine: [],
+  habits: [],
+  projects: [],
+  iconResearch: [],
+  tasks: [],
+  learningTopics: [],
+  lifeProfile: {
+    birthDate: '',
+    expectedEndDate: '',
+    displayMode: 'yearsMonthsDaysHours',
+    reminderText: 'Time is clarity for choosing what matters.'
+  },
+  womenHealth: {
+    enabled: false,
+    lastPeriodStart: '',
+    averageCycleDays: 28,
+    averagePeriodDays: 5,
+    pregnancyIntent: 'preferNotToSay',
+    fertilityPlanningEnabled: false,
+    fertilityReferenceAge: 35,
+    fertilityReminderText: 'Optional context for health conversations and long-term choices.',
+    displayMode: 'yearsMonthsDays',
+    notes: ''
+  },
+  preferences: {
+    preferredName: '',
+    tone: 'gentle',
+    onboardingCompleted: false,
+    onboardingCompletedAt: '',
+    currentSeason: '',
+    weeklyFocus: '',
+    energyPattern: 'mixed',
+    dailyTimeBudget: '15 min',
+    recommendedModules: ['habits', 'learning'],
+    rotatingPrompts: [
+      'What is one useful step today?',
+      'What would make today feel a little more aligned?',
+      'What small action helps the person you are becoming?'
+    ]
+  },
+  integrations: {
+    notionDatabaseId: '',
+    aiModel: 'gpt-4o-mini',
+    calendarName: 'POS',
+    webResearchEndpoint: '',
+    automationMode: 'assistive'
+  },
+  modules: baseModules,
+  captureInbox: [],
+  connectedAccounts: [],
+  friends: []
+};
+
+export const defaultData = emptyUserData;
+
+export const demoData: AppData = {
   userProfile: {
     authUserId: '',
     email: '',
@@ -151,18 +270,7 @@ export const defaultData: AppData = {
     webResearchEndpoint: '',
     automationMode: 'assistive'
   },
-  modules: [
-    { key: 'habits', title: 'Habits', enabled: true, purpose: 'Track repeated practices with one tap.', route: '/habits' },
-    { key: 'projects', title: 'Projects', enabled: true, purpose: 'See active outcomes and blockers.', route: '/projects' },
-    { key: 'learning', title: 'Learning', enabled: true, purpose: 'Professional learning plan and resources.', route: '/learning' },
-    { key: 'decision', title: 'Decision Center', enabled: true, purpose: 'Check purchases, outings, and commitments against identity.', route: '/decision' },
-    { key: 'lifeClock', title: 'Life Clock', enabled: false, purpose: 'Optional time-alive and time-left reflection.', route: '/life-clock' },
-    { key: 'womenHealth', title: 'Women Health', enabled: true, purpose: 'Optional cycle and family-planning awareness.', route: '/women-health' },
-    { key: 'health', title: 'Health Profile', enabled: true, purpose: 'Optional constraints for safer habit suggestions.', route: '/health' },
-    { key: 'environment', title: 'Environment & Integrity', enabled: true, purpose: 'Choose social environments and experiences intentionally.', route: '/environment' },
-    { key: 'builder', title: 'Identity Builder', enabled: false, purpose: 'Regenerate schedules from a conversational profile.', route: '/builder' },
-    { key: 'ai', title: 'AI Advisor', enabled: true, purpose: 'Ask for suggestions when tackling a task.', route: '/ai' }
-  ],
+  modules: baseModules.map(module => ({ ...module, enabled: module.key !== 'lifeClock' && module.key !== 'builder' })),
   captureInbox: [],
   connectedAccounts: [],
   friends: []

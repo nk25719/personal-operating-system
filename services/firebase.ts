@@ -11,6 +11,7 @@ import {
   type User
 } from 'firebase/auth';
 import { Platform } from 'react-native';
+import { setStorageUser } from '../utils/storage';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY ?? 'AIzaSyApVZ0g9IoMk3fGZQG6Q1Gj2UMv7P2Hneg',
@@ -63,6 +64,7 @@ export async function logInWithGoogle() {
 }
 
 export async function logOut() {
+  setStorageUser(null);
   const auth = getFirebaseAuth();
   if (auth) await signOut(auth);
 }

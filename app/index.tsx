@@ -9,7 +9,7 @@ import { useAppData } from '../hooks/useAppData';
 import { defaultMotivationCheckIn, getMockRecommendations, motivationStorageKey, openTasks, preferredName } from '../services/os';
 import { isRelationshipCue } from '../services/relationshipCue';
 import { MotivationCheckIn, PlannerMemoryRecord, Recommendation } from '../types';
-import { getJSON, getPlannerMemory } from '../utils/storage';
+import { getJSON, getPlannerMemory, getUserScopedStorageKey } from '../utils/storage';
 import { theme } from '../constants/theme';
 
 export default function HomeScreen() {
@@ -17,7 +17,14 @@ export default function HomeScreen() {
   const [motivation, setMotivation] = useState<MotivationCheckIn>(defaultMotivationCheckIn());
   const [plannerMemory, setPlannerMemory] = useState<PlannerMemoryRecord[]>([]);
 
-  useEffect(() => { getJSON(motivationStorageKey(), defaultMotivationCheckIn()).then(setMotivation); }, []);
+  useEffect(() => {
+    const key = getUserScopedStorageKey(motivationStorageKey());
+    if (key) {
+      getJSON(key, defaultMotivationCheckIn()).then(setMotivation);
+    } else {
+      setMotivation(defaultMotivationCheckIn());
+    }
+  }, []);
   useEffect(() => { getPlannerMemory().then(setPlannerMemory); }, []);
 
   const recommendations = useMemo(() => (

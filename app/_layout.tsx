@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../constants/theme';
 import { AuthGate } from '../components/AuthGate';
+import { AppIcon } from '../components/AppIcon';
 
 export default function RootLayout() {
   const insets = useSafeAreaInsets();
@@ -19,10 +19,10 @@ export default function RootLayout() {
           paddingBottom: Math.max(insets.bottom, 8)
         }
       }}>
-        <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} /> }} />
-        <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <Ionicons name="sunny" color={color} size={size} /> }} />
-        <Tabs.Screen name="growth" options={{ title: 'Growth', tabBarIcon: ({ color, size }) => <Ionicons name="trending-up" color={color} size={size} /> }} />
-        <Tabs.Screen name="knowledge" options={{ title: 'Knowledge', tabBarIcon: ({ color, size }) => <Ionicons name="library" color={color} size={size} /> }} />
+        <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color, size }) => <AppIcon name="home" color={color} size={size} fallbackLabel="H" /> }} />
+        <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <AppIcon name="today" color={color} size={size} fallbackLabel="T" /> }} />
+        <Tabs.Screen name="growth" options={{ title: 'Growth', tabBarIcon: ({ color, size }) => <AppIcon name="growth" color={color} size={size} fallbackLabel="G" /> }} />
+        <Tabs.Screen name="knowledge" options={{ title: 'Knowledge', tabBarIcon: ({ color, size }) => <AppIcon name="knowledge" color={color} size={size} fallbackLabel="K" /> }} />
         <Tabs.Screen name="relationships" options={{ href: null }} />
         <Tabs.Screen name="modules" options={{ href: null }} />
         <Tabs.Screen name="capture" options={{ href: null }} />

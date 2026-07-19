@@ -6,15 +6,17 @@ import { Card } from '../components/Card';
 import { Field } from '../components/Field';
 import { Chip } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
-import { applyOnboarding, DailyTimeBudget, EnergyPattern, LifeSeason, OnboardingTone, recommendModules, suggestHabits } from '../services/onboarding';
+import { useAuth } from '../hooks/useAuth';
+import { applyOnboarding, DailyTimeBudget, EnergyPattern, LifeSeason, OnboardingTone, recommendModules, suggestHabits, validateOnboardingInput } from '../services/onboarding';
 import { ModuleKey } from '../types';
 import { theme } from '../constants/theme';
 
 const seasons: LifeSeason[] = ['rebuilding', 'growing', 'overwhelmed', 'steady', 'exploring'];
 const values = ['health', 'learning', 'faith', 'family', 'creativity', 'career', 'peace', 'independence', 'relationships'];
 const focuses = ['feel healthier', 'organize life', 'learn consistently', 'finish a project', 'reduce stress', 'build routine'];
+const areas = ['health', 'learning', 'work', 'relationships', 'home', 'creativity'];
 const energies: EnergyPattern[] = ['low', 'mixed', 'good'];
-const tones: OnboardingTone[] = ['gentle', 'direct', 'structured'];
+const tones: OnboardingTone[] = ['gentle', 'direct', 'practical', 'structured'];
 const budgets: DailyTimeBudget[] = ['5 min', '15 min', '30 min', 'flexible'];
 const moduleOptions: { key: ModuleKey; label: string }[] = [
   { key: 'habits', label: 'Habits' },
@@ -27,13 +29,19 @@ const moduleOptions: { key: ModuleKey; label: string }[] = [
 
 export default function OnboardingScreen() {
   const { data, updateData, loading } = useAppData();
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [preferredName, setPreferredName] = useState(data?.preferences.preferredName ?? '');
   const [username, setUsername] = useState(data?.userProfile?.username ?? '');
   const [pronouns, setPronouns] = useState(data?.userProfile?.pronouns ?? '');
+  const [desiredPerson, setDesiredPerson] = useState('');
   const [currentSeason, setCurrentSeason] = useState<LifeSeason>('growing');
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [mainAreas, setMainAreas] = useState<string[]>([]);
   const [weeklyFocus, setWeeklyFocus] = useState('build routine');
+  const [learningGoal, setLearningGoal] = useState('');
+  const [healthContext, setHealthContext] = useState('');
+  const [relationshipPreference, setRelationshipPreference] = useState('');
   const [energyPattern, setEnergyPattern] = useState<EnergyPattern>('mixed');
   const [tone, setTone] = useState<OnboardingTone>('gentle');
   const [dailyTimeBudget, setDailyTimeBudget] = useState<DailyTimeBudget>('15 min');
@@ -41,30 +49,61 @@ export default function OnboardingScreen() {
   const [habits, setHabits] = useState<string[]>(habitSuggestions);
   const recommendedModules = useMemo(() => recommendModules({ weeklyFocus, values: selectedValues }), [weeklyFocus, selectedValues]);
   const [modules, setModules] = useState<ModuleKey[]>(recommendedModules);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
 
   if (loading || !data) return null;
 
   const finish = async () => {
-    await updateData(
-      current => applyOnboarding(current, {
-        preferredName,
-        username,
-        pronouns,
-        currentSeason,
-        values: selectedValues,
-        weeklyFocus,
-        energyPattern,
-        dailyTimeBudget,
-        habits,
-        recommendedModules: modules,
-        tone
-      }),
-      { type: 'data.updated', payload: { reason: 'onboarding.completed' } }
-    );
-    router.replace('/');
+    if (saving) return;
+    if (!user) {
+      setMessage('Log in again before finishing setup.');
+      return;
+    }
+    const input = {
+      authUserId: user.uid,
+      email: user.email,
+      preferredName,
+      username,
+      pronouns,
+      desiredPerson,
+      currentSeason,
+      values: selectedValues,
+      weeklyFocus,
+      mainAreas,
+      energyPattern,
+      dailyTimeBudget,
+      habits,
+      startingRoutine: habits,
+      recommendedModules: modules,
+      tone,
+      learningGoal,
+      healthContext,
+      relationshipPreference
+    };
+    const validationError = validateOnboardingInput(input);
+    if (validationError) {
+      setMessage(validationError);
+      return;
+    }
+    setSaving(true);
+    setMessage('');
+    try {
+      const saved = await updateData(
+        current => applyOnboarding(current, input),
+        { type: 'data.updated', payload: { reason: 'onboarding.completed' } }
+      );
+      if (!saved?.preferences.onboardingCompleted) throw new Error('Setup did not finish saving. Please try again.');
+      router.replace('/');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Setup could not finish. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const next = () => {
+    if (saving) return;
     if (step < 4) setStep(step + 1);
     else finish();
   };
@@ -74,12 +113,14 @@ export default function OnboardingScreen() {
       <Text style={styles.eyebrow}>First setup</Text>
       <Text style={styles.title}>{titles[step]}</Text>
       <Text style={styles.step}>Step {step + 1} of 5</Text>
+      {message ? <Text style={styles.message}>{message}</Text> : null}
 
       {step === 0 ? (
         <Card>
-          <Field label="Preferred name" value={preferredName} onChangeText={setPreferredName} placeholder="Nagham" />
-          <Field label="Username" value={username} onChangeText={setUsername} placeholder="nagham" />
-          <Field label="Pronouns optional" value={pronouns} onChangeText={setPronouns} placeholder="she/her" />
+          <Field label="Preferred name" value={preferredName} onChangeText={setPreferredName} placeholder="Your name" />
+          <Field label="Username" value={username} onChangeText={setUsername} placeholder="yourname" />
+          <Field label="Pronouns optional" value={pronouns} onChangeText={setPronouns} placeholder="Optional" />
+          <Field label="Person I am becoming" value={desiredPerson} onChangeText={setDesiredPerson} placeholder="Steady, healthy, focused" />
           <Text style={styles.label}>Season</Text>
           <ChipRow options={seasons} selected={[currentSeason]} onPress={value => setCurrentSeason(value as LifeSeason)} />
         </Card>
@@ -89,6 +130,8 @@ export default function OnboardingScreen() {
         <Card>
           <Text style={styles.label}>Choose up to 3 values</Text>
           <ChipRow options={values} selected={selectedValues} onPress={toggleValue} />
+          <Text style={styles.label}>Main areas</Text>
+          <ChipRow options={areas} selected={mainAreas} onPress={toggleArea} />
         </Card>
       ) : null}
 
@@ -97,6 +140,7 @@ export default function OnboardingScreen() {
           <Text style={styles.label}>This week</Text>
           <ChipRow options={focuses} selected={[weeklyFocus]} onPress={setWeeklyFocus} />
           <Field label="Or write your focus" value={weeklyFocus} onChangeText={setWeeklyFocus} />
+          <Field label="Learning goal optional" value={learningGoal} onChangeText={setLearningGoal} placeholder="German, anatomy, product design" />
         </Card>
       ) : null}
 
@@ -108,6 +152,8 @@ export default function OnboardingScreen() {
           <ChipRow options={tones} selected={[tone]} onPress={value => setTone(value as OnboardingTone)} />
           <Text style={styles.label}>Daily time</Text>
           <ChipRow options={budgets} selected={[dailyTimeBudget]} onPress={value => setDailyTimeBudget(value as DailyTimeBudget)} />
+          <Field label="Health context optional" value={healthContext} onChangeText={setHealthContext} placeholder="Low energy, sleep, movement limits" />
+          <Field label="Accountability optional" value={relationshipPreference} onChangeText={setRelationshipPreference} placeholder="A person or support style" />
         </Card>
       ) : null}
 
@@ -126,7 +172,7 @@ export default function OnboardingScreen() {
         </>
       ) : null}
 
-      <Button title={step === 4 ? 'Your POS is ready' : 'Continue'} onPress={next} />
+      <Button title={saving ? 'Saving...' : step === 4 ? 'Your POS is ready' : 'Continue'} onPress={next} disabled={saving} />
     </ScrollView>
   );
 
@@ -136,6 +182,10 @@ export default function OnboardingScreen() {
 
   function toggleHabit(value: string) {
     setHabits(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value].slice(0, 3));
+  }
+
+  function toggleArea(value: string) {
+    setMainAreas(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value].slice(0, 4));
   }
 
   function toggleModuleByLabel(label: string) {
@@ -167,6 +217,7 @@ const styles = StyleSheet.create({
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1, fontSize: 12 },
   title: { fontSize: 32, fontWeight: '900', color: theme.colors.text, lineHeight: 36, marginTop: 8 },
   step: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16, fontWeight: '800' },
+  message: { color: theme.colors.warning, fontWeight: '800', lineHeight: 20, marginBottom: 12 },
   cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 12, color: theme.colors.text },
   label: { color: theme.colors.accent, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12, marginBottom: 8 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }

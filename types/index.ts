@@ -2,7 +2,9 @@ export type TonePreference = 'warm' | 'gentle' | 'direct' | 'practical' | 'refle
 
 export type UserPreferences = {
   preferredName?: string;
+  username?: string;
   tone: TonePreference;
+  preferredTone?: TonePreference;
   rotatingPrompts: string[];
   onboardingCompleted?: boolean;
   onboardingCompletedAt?: string;

@@ -7,7 +7,7 @@ import { Card } from '../components/Card';
 import { ChecklistRow } from '../components/ChecklistRow';
 import { HeaderActions } from '../components/HeaderActions';
 import { useAppData } from '../hooks/useAppData';
-import { appendMutationEvent, getJSON, getMutationEvents, getPlannerMemory, setJSON } from '../utils/storage';
+import { appendMutationEvent, getJSON, getMutationEvents, getPlannerMemory, getUserScopedStorageKey, setJSON } from '../utils/storage';
 import { defaultMotivationCheckIn, getMockRecommendations, motivationStorageKey, personalPrompt, preferredName, routineWithoutMaintenance, todayStorageKey } from '../services/os';
 import { Chip, ProgressBar } from '../components/Visual';
 import { MotivationCheckIn, MutationEvent, PlannerMemoryRecord, PlannerMemoryResponse, Recommendation, RecommendationAction } from '../types';
@@ -25,11 +25,23 @@ export default function TodayScreen() {
   const [plannerMemory, setPlannerMemory] = useState<PlannerMemoryRecord[]>([]);
   const [motivation, setMotivation] = useState<MotivationCheckIn>(defaultMotivationCheckIn());
   const [events, setEvents] = useState<MutationEvent[]>([]);
-  const storageKey = todayStorageKey();
-  const agencyKey = motivationStorageKey();
+  const storageKey = getUserScopedStorageKey(todayStorageKey());
+  const agencyKey = getUserScopedStorageKey(motivationStorageKey());
 
-  useEffect(() => { getJSON(storageKey, {}).then(setDone); }, [storageKey]);
-  useEffect(() => { getJSON(agencyKey, defaultMotivationCheckIn()).then(setMotivation); }, [agencyKey]);
+  useEffect(() => {
+    if (storageKey) {
+      getJSON(storageKey, {}).then(setDone);
+    } else {
+      setDone({});
+    }
+  }, [storageKey]);
+  useEffect(() => {
+    if (agencyKey) {
+      getJSON(agencyKey, defaultMotivationCheckIn()).then(setMotivation);
+    } else {
+      setMotivation(defaultMotivationCheckIn());
+    }
+  }, [agencyKey]);
   useEffect(() => { getPlannerMemory().then(setPlannerMemory); }, []);
   useEffect(() => { getMutationEvents().then(setEvents); }, []);
 
@@ -43,6 +55,7 @@ export default function TodayScreen() {
   const completed = routine.filter(item => done[item.id]).length;
   const firstName = preferredName(data);
   const prompt = personalPrompt(data);
+  const desiredPerson = data.characters.find(character => character.id === data.activeCharacterId)?.desiredPerson;
   const nextHabit = data.habits[0];
   const habitRecommendation = recommendations.find(item => isRecommendationForHabit(item, nextHabit));
   const selectedHabitRecommendationAction = habitRecommendation ? recommendationState[habitRecommendation.id] : undefined;
@@ -55,6 +68,7 @@ export default function TodayScreen() {
   const toggle = async (id: string) => {
     const nextDone = { ...done, [id]: !done[id] };
     setDone(nextDone);
+    if (!storageKey) return;
     await setJSON(storageKey, nextDone);
     if (nextDone[id]) {
       const event = await appendMutationEvent('habit.completed', { itemId: id, dateKey: storageKey });
@@ -85,6 +99,7 @@ export default function TodayScreen() {
           <View style={styles.heroCopy}>
             <Text style={styles.eyebrow}>Today</Text>
             <Text style={styles.title}>Hello {firstName}</Text>
+            {desiredPerson ? <Text style={styles.subtitle}>Ready to move one step closer to becoming {desiredPerson}?</Text> : null}
           </View>
           <View style={styles.heroActions}>
             <HeaderActions />
@@ -96,14 +111,20 @@ export default function TodayScreen() {
       <Card>
         <Text style={styles.cardLabel}>Next Small Action</Text>
         {nextSmallAction ? (
-          <ChecklistRow
-            key={nextSmallAction.id}
-            time={nextSmallAction.time}
-            title={nextSmallAction.title}
-            detail={formatConsecutiveCompletion(nextSmallActionStreak)}
-            done={!!done[nextSmallAction.id]}
-            onPress={() => toggle(nextSmallAction.id)}
-          />
+          <>
+            <ChecklistRow
+              key={nextSmallAction.id}
+              time={nextSmallAction.time}
+              title={nextSmallAction.title}
+              detail={formatConsecutiveCompletion(nextSmallActionStreak)}
+              done={!!done[nextSmallAction.id]}
+              onPress={() => toggle(nextSmallAction.id)}
+            />
+            <View style={styles.nextHour}>
+              <Text style={styles.stepLabel}>Next hour</Text>
+              <Text style={styles.muted}>{nextSmallAction.time} {nextSmallAction.title}</Text>
+            </View>
+          </>
         ) : (
           <>
             <Text style={styles.body}>Nothing scheduled next.</Text>
@@ -150,6 +171,7 @@ const styles = StyleSheet.create({
   muted: { color: theme.colors.textMuted, lineHeight: 20 },
   body: { fontSize: 15, color: theme.colors.text, lineHeight: 22 },
   stepLabel: { color: theme.colors.accent, fontWeight: '900', marginTop: 14, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12 },
+  nextHour: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: theme.colors.border },
   row: { flexDirection: 'row', gap: 8, marginTop: 16, flexWrap: 'wrap', alignContent: 'stretch' },
   feedback: { color: theme.colors.primary, fontWeight: '800', marginTop: -6, marginBottom: 12 }
 });

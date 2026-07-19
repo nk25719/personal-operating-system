@@ -1,12 +1,12 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from './AppIcon';
 
 export function SecondaryHeader({ title }: { title: string }) {
   return (
     <View style={styles.header}>
       <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={() => router.back()} style={styles.back}>
-        <Ionicons name="chevron-back" size={20} color="#36594d" />
+        <AppIcon name="back" size={20} color="#36594d" fallbackLabel="<" />
       </Pressable>
       <Text style={styles.title}>{title}</Text>
     </View>

@@ -1,18 +1,18 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Chip, ProgressBar } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
 import { AppData, Project, Task } from '../types';
+import { AppIcon, AppIconName } from '../components/AppIcon';
 
 const sections = [
-  { title: 'Tasks', route: '/tasks', icon: 'checkbox', key: 'tasks' },
-  { title: 'Habits', route: '/habits', icon: 'repeat', key: 'habits' },
-  { title: 'Projects', route: '/projects', icon: 'folder-open', key: 'projects' },
-  { title: 'Learning', route: '/learning', icon: 'book', key: 'learning' },
-  { title: 'Decisions', route: '/decision', icon: 'git-branch', key: 'decisions' }
+  { title: 'Tasks', route: '/tasks', icon: 'tasks', key: 'tasks' },
+  { title: 'Habits', route: '/habits', icon: 'habits', key: 'habits' },
+  { title: 'Projects', route: '/projects', icon: 'projects', key: 'projects' },
+  { title: 'Learning', route: '/learning', icon: 'learning', key: 'learning' },
+  { title: 'Decisions', route: '/decision', icon: 'decisions', key: 'decisions' }
 ] as const;
 
 const tools = [
@@ -47,7 +47,7 @@ export default function PlanScreen() {
           <Card key={section.key}>
             <View style={styles.row}>
               <View style={styles.icon}>
-                <Ionicons name={section.icon} size={20} color="#36594d" />
+                <AppIcon name={section.icon as AppIconName} size={20} color="#36594d" fallbackLabel={section.title.slice(0, 2)} />
               </View>
               <View style={styles.copy}>
                 <Text style={styles.sectionTitle}>{section.title}</Text>

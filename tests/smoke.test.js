@@ -67,10 +67,11 @@ test.beforeEach(() => {
 
 test('storage sanitizes and migrates legacy integration secrets', async () => {
   const { defaultData } = fromRoot('data/seed.ts');
-  const { getAppData, setAppData } = fromRoot('utils/storage.ts');
+  const { getAppData, getAppDataStorageKey, setAppData, setStorageUser } = fromRoot('utils/storage.ts');
   const { getIntegrationSecrets } = fromRoot('utils/secrets.ts');
+  setStorageUser('user-a');
 
-  await asyncStorageMock.setItem('pos-app-data-v2', JSON.stringify({
+  await asyncStorageMock.setItem(getAppDataStorageKey('user-a'), JSON.stringify({
     ...defaultData,
     integrations: {
       ...defaultData.integrations,
@@ -81,15 +82,54 @@ test('storage sanitizes and migrates legacy integration secrets', async () => {
   }));
 
   const loaded = await getAppData();
+  assert.equal(getAppDataStorageKey('user-a'), 'pos-app-data-v2:user-a');
   assert.equal(loaded.integrations.notionDatabaseId, 'db-1');
   assert.equal(Object.hasOwn(loaded.integrations, 'aiApiKey'), false);
   assert.equal(Object.hasOwn(loaded.integrations, 'notionToken'), false);
   assert.deepEqual(await getIntegrationSecrets(), { openaiApiKey: 'sk-test', notionToken: 'notion-secret' });
 
   await setAppData(loaded);
-  const persisted = JSON.parse(await asyncStorageMock.getItem('pos-app-data-v2'));
+  const persisted = JSON.parse(await asyncStorageMock.getItem('pos-app-data-v2:user-a'));
   assert.equal(Object.hasOwn(persisted.integrations, 'aiApiKey'), false);
   assert.equal(Object.hasOwn(persisted.integrations, 'notionToken'), false);
+});
+
+test('app data storage is scoped per Firebase user', async () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { getAppData, getAppDataStorageKey, setAppData, setStorageUser } = fromRoot('utils/storage.ts');
+
+  setStorageUser(null);
+  assert.equal(await getAppData(), null);
+  assert.equal(getAppDataStorageKey(), null);
+
+  setStorageUser('user-a');
+  await setAppData({ ...defaultData, preferences: { ...defaultData.preferences, preferredName: 'User A' } });
+  setStorageUser('user-b');
+  await setAppData({ ...defaultData, preferences: { ...defaultData.preferences, preferredName: 'User B' } });
+
+  assert.equal(JSON.parse(await asyncStorageMock.getItem('pos-app-data-v2:user-a')).preferences.preferredName, 'User A');
+  assert.equal(JSON.parse(await asyncStorageMock.getItem('pos-app-data-v2:user-b')).preferences.preferredName, 'User B');
+  assert.equal((await getAppData()).preferences.preferredName, 'User B');
+});
+
+test('setAppData notifies active user subscribers after onboarding save', async () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { setAppData, setStorageUser, subscribeToAppData } = fromRoot('utils/storage.ts');
+  setStorageUser('notify-user');
+  const notifications = [];
+  const unsubscribe = subscribeToAppData((data, userId) => {
+    notifications.push({ data, userId });
+  });
+
+  await setAppData({
+    ...defaultData,
+    preferences: { ...defaultData.preferences, onboardingCompleted: true, onboardingCompletedAt: '2026-07-19T00:00:00.000Z' }
+  });
+  unsubscribe();
+
+  assert.equal(notifications.length, 1);
+  assert.equal(notifications[0].userId, 'notify-user');
+  assert.equal(notifications[0].data.preferences.onboardingCompleted, true);
 });
 
 test('mutation helpers update data and characters without leaking secrets', async () => {
@@ -99,7 +139,7 @@ test('mutation helpers update data and characters without leaking secrets', asyn
 
   const withTask = applyDataUpdate(defaultData, current => ({
     ...current,
-    tasks: [{ ...current.tasks[0], id: 'task-new', title: 'New safe task' }, ...current.tasks]
+    tasks: [{ id: 'task-new', title: 'New safe task', area: 'Personal', status: 'Todo', priority: 'Medium' }, ...current.tasks]
   }));
   assert.equal(withTask.tasks[0].id, 'task-new');
 
@@ -114,34 +154,104 @@ test('mutation helpers update data and characters without leaking secrets', asyn
   assert.equal(Object.hasOwn(sanitized.integrations, 'notionToken'), false);
 });
 
-test('onboarding stores first-launch preferences and creates one tiny habit', () => {
+test('buildAppDataFromOnboarding fills required setup contract fields', () => {
   const { defaultData } = fromRoot('data/seed.ts');
-  const { applyOnboarding, shouldShowOnboarding } = fromRoot('services/onboarding.ts');
+  const { buildAppDataFromOnboarding, onboardingSetupContract, shouldShowOnboarding, validateOnboardingInput } = fromRoot('services/onboarding.ts');
 
   assert.equal(shouldShowOnboarding(defaultData), true);
-  const next = applyOnboarding(defaultData, {
+  const answers = {
     preferredName: 'N',
     username: 'steady_researcher',
     pronouns: 'she/her',
+    desiredPerson: 'A steady researcher',
     currentSeason: 'growing',
     values: ['Health', 'Mastery', 'Freedom', 'Extra'],
-    weeklyFocus: 'learn consistently',
+    mainAreas: ['learning', 'health'],
+    weeklyFocus: 'finish a project',
     energyPattern: 'mixed',
     dailyTimeBudget: '15 min',
     habits: ['Read one paragraph after dinner'],
-    recommendedModules: ['learning', 'habits'],
-    tone: 'structured'
-  }, 123);
+    startingRoutine: ['Read one paragraph after dinner'],
+    recommendedModules: ['learning', 'habits', 'projects'],
+    tone: 'structured',
+    healthContext: 'Low energy in the morning',
+    learningGoal: 'German',
+    relationshipPreference: 'Supportive friend'
+  };
+  const next = buildAppDataFromOnboarding({ uid: 'firebase-user-1', email: 'user@example.com' }, answers, defaultData, 123);
 
   assert.equal(shouldShowOnboarding(next), false);
   assert.equal(next.preferences.onboardingCompleted, true);
   assert.equal(next.preferences.currentSeason, 'growing');
   assert.equal(next.preferences.tone, 'structured');
-  assert.equal(next.preferences.weeklyFocus, 'learn consistently');
+  assert.equal(next.preferences.preferredTone, 'structured');
+  assert.equal(next.preferences.username, 'steady_researcher');
+  assert.equal(next.preferences.weeklyFocus, 'finish a project');
+  assert.equal(next.userProfile.authUserId, 'firebase-user-1');
+  assert.equal(next.userProfile.email, 'user@example.com');
   assert.equal(next.userProfile.username, 'steady_researcher');
+  assert.equal(next.activeCharacterId, 'self');
+  assert.equal(next.characters.length, 1);
+  assert.equal(next.characters[0].name, 'N');
+  assert.equal(next.characters[0].desiredPerson, 'A steady researcher');
   assert.deepEqual(next.characters[0].values, ['Health', 'Mastery', 'Freedom']);
+  assert.match(next.characters[0].dailyObligations, /finish a project/);
+  assert.equal(next.characters[0].healthProfile.painOrEnergyNotes, 'Low energy in the morning');
   assert.equal(next.habits[0].id, 'habit-onboarding-123');
   assert.equal(next.habits[0].name, 'Read one paragraph after dinner');
+  assert.equal(next.habits[0].minimum, 'Read one paragraph after dinner');
+  assert.equal(next.routine[0].title, 'Read one paragraph after dinner');
+  assert.equal(next.projects[0].name, 'Finish a project');
+  assert.equal(next.tasks[0].projectId, next.projects[0].id);
+  assert.equal(next.learningTopics[0].name, 'German');
+  assert.equal(next.captureInbox.length, 0);
+  assert.equal(next.modules.find(module => module.key === 'learning').enabled, true);
+  assert.equal(next.modules.find(module => module.key === 'projects').enabled, true);
+  assert.equal(next.modules.find(module => module.key === 'health').enabled, false);
+  assert.equal(validateOnboardingInput({ ...answers, preferredName: '' }), 'Add your preferred name.');
+  assert.ok(onboardingSetupContract.requiredAnswers.includes('startingRoutine'));
+  assert.ok(onboardingSetupContract.generatedAppData.includes('authUserId'));
+});
+
+test('onboarding completion sets route-guard fields without project when focus is routine', () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { applyOnboarding } = fromRoot('services/onboarding.ts');
+
+  const next = applyOnboarding(defaultData, {
+    authUserId: 'firebase-user-2',
+    email: 'routine@example.com',
+    preferredName: 'R',
+    username: 'routine_user',
+    desiredPerson: 'A steady person',
+    currentSeason: 'steady',
+    values: ['peace'],
+    weeklyFocus: 'build routine',
+    energyPattern: 'low',
+    dailyTimeBudget: '5 min',
+    habits: ['Drink water'],
+    startingRoutine: ['Drink water'],
+    recommendedModules: ['habits'],
+    tone: 'gentle'
+  }, 456);
+
+  assert.equal(next.preferences.onboardingCompleted, true);
+  assert.ok(next.preferences.onboardingCompletedAt);
+  assert.equal(next.userProfile.authUserId, 'firebase-user-2');
+  assert.equal(next.activeCharacterId, 'self');
+  assert.equal(next.characters.length, 1);
+  assert.equal(next.routine.length, 1);
+  assert.equal(next.habits[0].minimum, 'Drink water');
+  assert.equal(next.projects.length, 0);
+  assert.equal(next.captureInbox.length, 0);
+});
+
+test('auth error mapper returns readable messages', () => {
+  const { getAuthMessage } = fromRoot('services/authErrors.ts');
+  assert.equal(getAuthMessage(new Error('Firebase: Error (auth/invalid-email).')), 'Enter a valid email address.');
+  assert.equal(getAuthMessage(new Error('Firebase: Error (auth/email-already-in-use).')), 'An account with this email already exists.');
+  assert.equal(getAuthMessage(new Error('Firebase: Error (auth/weak-password).')), 'Use a password with at least 6 characters.');
+  assert.equal(getAuthMessage(new Error('Firebase: Error (auth/operation-not-allowed).')), 'This sign-in option is not enabled yet.');
+  assert.equal(getAuthMessage(new Error('Firebase: Error (auth/invalid-credential).')), 'Email or password is not correct.');
 });
 
 test('onboarding suggests habits and modules from setup context', () => {
@@ -156,7 +266,8 @@ test('onboarding suggests habits and modules from setup context', () => {
 });
 
 test('event log records lightweight local mutation events', async () => {
-  const { appendMutationEvent, appendPlannerMemory, getMutationEvents, getPlannerMemory } = fromRoot('utils/storage.ts');
+  const { appendMutationEvent, appendPlannerMemory, getMutationEvents, getPlannerMemory, setStorageUser } = fromRoot('utils/storage.ts');
+  setStorageUser('events-user');
 
   await appendMutationEvent('task.created', { taskId: 'task-1' });
   await appendMutationEvent('capture.saved', { captureId: 'capture-1' });
@@ -178,7 +289,8 @@ test('event log records lightweight local mutation events', async () => {
 
 test('export, preview, and import backup use schema version and exclude secrets', async () => {
   const { defaultData } = fromRoot('data/seed.ts');
-  const { exportAppBackup, importAppBackup, previewAppBackup, setAppData } = fromRoot('utils/storage.ts');
+  const { exportAppBackup, importAppBackup, previewAppBackup, setAppData, setStorageUser } = fromRoot('utils/storage.ts');
+  setStorageUser('backup-user');
 
   await setAppData({
     ...defaultData,
@@ -204,7 +316,8 @@ test('export, preview, and import backup use schema version and exclude secrets'
 
 test('backup can be exported, reset, previewed, and restored', async () => {
   const { defaultData } = fromRoot('data/seed.ts');
-  const { exportAppBackup, getAppData, importAppBackup, previewAppBackup, resetAppData, setAppData } = fromRoot('utils/storage.ts');
+  const { exportAppBackup, getAppData, importAppBackup, previewAppBackup, resetAppData, setAppData, setStorageUser } = fromRoot('utils/storage.ts');
+  setStorageUser('restore-user');
 
   const original = {
     ...defaultData,
@@ -217,7 +330,7 @@ test('backup can be exported, reset, previewed, and restored', async () => {
 
   const backup = await exportAppBackup();
   await resetAppData();
-  assert.notEqual((await getAppData()).tasks[0].id, 'task-restore-check');
+  assert.equal((await getAppData()).tasks.length, 0);
 
   const preview = previewAppBackup(backup);
   assert.equal(preview.habitsCount, 1);
@@ -232,10 +345,10 @@ test('backup can be exported, reset, previewed, and restored', async () => {
 });
 
 test('planner falls back locally when no OpenAI key exists', async () => {
-  const { defaultData } = fromRoot('data/seed.ts');
+  const { demoData } = fromRoot('data/seed.ts');
   const { generatePlan } = fromRoot('services/planner.ts');
 
-  const plan = await generatePlan(defaultData);
+  const plan = await generatePlan(demoData);
   assert.ok(plan.routine.length > 0);
   assert.ok(plan.habits.some(habit => habit.name.includes('Technical') || habit.name.includes('Paper')));
   assert.ok(plan.projects.length > 0);
@@ -251,10 +364,10 @@ test('capture extraction finds actions and module suggestions', () => {
 });
 
 test('today recommendation follows the recommendation contract', () => {
-  const { defaultData } = fromRoot('data/seed.ts');
+  const { demoData } = fromRoot('data/seed.ts');
   const { getMockRecommendations } = fromRoot('services/os.ts');
 
-  const recommendations = getMockRecommendations(defaultData, { autonomy: 1, competence: 4, relatedness: 4 });
+  const recommendations = getMockRecommendations(demoData, { autonomy: 1, competence: 4, relatedness: 4 });
   const first = recommendations[0];
   assert.equal(first.title, 'Restore choice');
   assert.ok(first.whyToday);
@@ -267,11 +380,11 @@ test('today recommendation follows the recommendation contract', () => {
 });
 
 test('today recommendation filter excludes relationship cues', () => {
-  const { defaultData } = fromRoot('data/seed.ts');
+  const { demoData } = fromRoot('data/seed.ts');
   const { getMockRecommendations } = fromRoot('services/os.ts');
   const { isRelationshipCue } = fromRoot('services/relationshipCue.ts');
 
-  const recommendations = getMockRecommendations(defaultData, { autonomy: 4, competence: 4, relatedness: 1 });
+  const recommendations = getMockRecommendations(demoData, { autonomy: 4, competence: 4, relatedness: 1 });
   assert.ok(recommendations.some(isRelationshipCue));
   const todayRecommendations = recommendations.filter(recommendation => !isRelationshipCue(recommendation));
   assert.equal(todayRecommendations.some(recommendation => /relationship|relatedness|check-in|name who this action serves/i.test([
@@ -302,20 +415,20 @@ test('relationship cue detection catches legacy mismatched recommendation type',
 });
 
 test('today presentation detects duplicate habit recommendations', () => {
-  const { defaultData } = fromRoot('data/seed.ts');
+  const { demoData } = fromRoot('data/seed.ts');
   const { getMockRecommendations } = fromRoot('services/os.ts');
   const { getNextHourItems, getNextSmallActionItem, getSmallStep, getTodayVisibleRecommendation, isRecommendationForHabit } = fromRoot('services/todayPresentation.ts');
 
-  const habit = defaultData.habits[0];
-  const habitRecommendation = getMockRecommendations(defaultData).find(recommendation => recommendation.type === 'habit_recovery');
+  const habit = demoData.habits[0];
+  const habitRecommendation = getMockRecommendations(demoData).find(recommendation => recommendation.type === 'habit_recovery');
   assert.equal(isRecommendationForHabit(habitRecommendation, habit), true);
   assert.equal(getSmallStep(habitRecommendation, habit), 'Do 1 small movement or stretch.');
   assert.equal(getTodayVisibleRecommendation([habitRecommendation], habit), undefined);
 
-  const nextHour = getNextHourItems(defaultData.routine, new Date('2026-07-18T06:30:00'));
+  const nextHour = getNextHourItems(demoData.routine, new Date('2026-07-18T06:30:00'));
   assert.ok(nextHour.some(item => item.title === 'German practice'));
 
-  const nextSmallAction = getNextSmallActionItem(defaultData.routine, { wake: true, movement: true });
+  const nextSmallAction = getNextSmallActionItem(demoData.routine, { wake: true, movement: true });
   assert.equal(nextSmallAction.title, 'Shower + prep');
 });
 
@@ -336,12 +449,13 @@ test('habit streak helper counts consecutive completion days safely', () => {
 });
 
 test('recommendation response recording writes event and planner memory', async () => {
-  const { defaultData } = fromRoot('data/seed.ts');
+  const { demoData } = fromRoot('data/seed.ts');
   const { getMockRecommendations } = fromRoot('services/os.ts');
   const { recordRecommendationResponse } = fromRoot('services/plannerMemory.ts');
-  const { getMutationEvents, getPlannerMemory } = fromRoot('utils/storage.ts');
+  const { getMutationEvents, getPlannerMemory, setStorageUser } = fromRoot('utils/storage.ts');
+  setStorageUser('recommendation-user');
 
-  const recommendation = getMockRecommendations(defaultData)[0];
+  const recommendation = getMockRecommendations(demoData)[0];
   await recordRecommendationResponse({
     recommendation,
     userIntention: 'Choose the next useful action',
@@ -359,10 +473,10 @@ test('recommendation response recording writes event and planner memory', async 
 });
 
 test('recommendation learning lowers repeatedly dismissed types', () => {
-  const { defaultData } = fromRoot('data/seed.ts');
+  const { demoData } = fromRoot('data/seed.ts');
   const { getMockRecommendations } = fromRoot('services/os.ts');
 
-  const withoutMemory = getMockRecommendations(defaultData);
+  const withoutMemory = getMockRecommendations(demoData);
   const dismissedProjectMemory = Array.from({ length: 3 }, (_, index) => ({
     id: `memory-${index}`,
     createdAt: new Date().toISOString(),
@@ -372,7 +486,7 @@ test('recommendation learning lowers repeatedly dismissed types', () => {
     suggestedAction: 'test',
     userResponse: 'dismissed'
   }));
-  const withMemory = getMockRecommendations(defaultData, undefined, dismissedProjectMemory);
+  const withMemory = getMockRecommendations(demoData, undefined, dismissedProjectMemory);
 
   assert.equal(withoutMemory[0].type, 'project_next_action');
   assert.notEqual(withMemory[0].type, 'project_next_action');

@@ -1,24 +1,37 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Chip } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
 import { defaultMotivationCheckIn, motivationStorageKey } from '../services/os';
 import { MotivationCheckIn } from '../types';
-import { appendMutationEvent, getJSON, setJSON } from '../utils/storage';
+import { appendMutationEvent, getJSON, getUserScopedStorageKey, setJSON } from '../utils/storage';
 import { theme } from '../constants/theme';
+import { AppIcon, AppIconName } from '../components/AppIcon';
 
 export default function RelationshipsScreen() {
   const { data, loading } = useAppData();
   const [motivation, setMotivation] = useState<MotivationCheckIn>(defaultMotivationCheckIn());
   const [relationshipCue, setRelationshipCue] = useState<'done' | 'skip' | null>(null);
-  const relationshipCueKey = `${new Date().toISOString().slice(0, 10)}-relationship-cue`;
+  const relationshipCueKey = getUserScopedStorageKey(`${new Date().toISOString().slice(0, 10)}-relationship-cue`);
 
-  useEffect(() => { getJSON(motivationStorageKey(), defaultMotivationCheckIn()).then(setMotivation); }, []);
-  useEffect(() => { getJSON<'done' | 'skip' | null>(relationshipCueKey, null).then(setRelationshipCue); }, [relationshipCueKey]);
+  useEffect(() => {
+    const key = getUserScopedStorageKey(motivationStorageKey());
+    if (key) {
+      getJSON(key, defaultMotivationCheckIn()).then(setMotivation);
+    } else {
+      setMotivation(defaultMotivationCheckIn());
+    }
+  }, []);
+  useEffect(() => {
+    if (relationshipCueKey) {
+      getJSON<'done' | 'skip' | null>(relationshipCueKey, null).then(setRelationshipCue);
+    } else {
+      setRelationshipCue(null);
+    }
+  }, [relationshipCueKey]);
 
   if (loading || !data) return null;
 
@@ -27,6 +40,7 @@ export default function RelationshipsScreen() {
 
   const respond = async (response: 'done' | 'skip') => {
     setRelationshipCue(response);
+    if (!relationshipCueKey) return;
     await setJSON(relationshipCueKey, response);
     await appendMutationEvent(response === 'done' ? 'connection.done' : 'connection.skipped', {
       prompt: 'Check in with one person today.',
@@ -43,7 +57,7 @@ export default function RelationshipsScreen() {
       {showCue ? (
         <Card variant="highlight">
           <View style={styles.row}>
-            <Icon name="heart" />
+            <Icon name="health" />
             <View style={styles.copy}>
               <Text style={styles.cardLabel}>Connection cue</Text>
               <Text style={styles.cardTitle}>Check in with one person today.</Text>
@@ -59,7 +73,7 @@ export default function RelationshipsScreen() {
 
       <Card>
         <View style={styles.row}>
-          <Icon name="people" />
+          <Icon name="relationships" />
           <View style={styles.copy}>
             <Text style={styles.cardLabel}>Accountability</Text>
             <Text style={styles.cardTitle}>{partner?.name ?? 'No partner set'}</Text>
@@ -77,10 +91,10 @@ export default function RelationshipsScreen() {
   );
 }
 
-function Icon({ name }: { name: keyof typeof Ionicons.glyphMap }) {
+function Icon({ name }: { name: AppIconName }) {
   return (
     <View style={styles.icon}>
-      <Ionicons name={name} size={20} color={theme.colors.primary} />
+      <AppIcon name={name} size={20} fallbackLabel={name.slice(0, 2)} />
     </View>
   );
 }

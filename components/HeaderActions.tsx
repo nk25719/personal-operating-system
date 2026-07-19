@@ -1,24 +1,24 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Link } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../constants/theme';
+import { AppIcon } from './AppIcon';
 
 export function HeaderActions() {
   return (
     <View style={styles.actions}>
       <Link href="/modules" asChild>
         <Pressable accessibilityLabel="Open modules" accessibilityRole="button" style={styles.button}>
-          <Ionicons name="add-circle" size={24} color={theme.colors.primary} />
+          <AppIcon name="modules" size={24} fallbackLabel="+" />
         </Pressable>
       </Link>
       <Link href="/profile" asChild>
         <Pressable accessibilityLabel="Open profile" accessibilityRole="button" style={styles.button}>
-          <Ionicons name="person-circle" size={24} color={theme.colors.primary} />
+          <AppIcon name="profile" size={24} fallbackLabel="Me" />
         </Pressable>
       </Link>
       <Link href="/settings" asChild>
         <Pressable accessibilityLabel="Open settings" accessibilityRole="button" style={styles.button}>
-          <Ionicons name="settings" size={22} color={theme.colors.primary} />
+          <AppIcon name="settings" size={22} fallbackLabel="Set" />
         </Pressable>
       </Link>
     </View>

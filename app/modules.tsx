@@ -1,50 +1,50 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Card } from '../components/Card';
 import { HeaderActions } from '../components/HeaderActions';
 import { Chip } from '../components/Visual';
 import { theme } from '../constants/theme';
 import { useAppData } from '../hooks/useAppData';
 import { ModuleKey } from '../types';
+import { AppIcon, AppIconName } from '../components/AppIcon';
 
 const groups = [
   {
     title: 'Planning',
     items: [
-      { title: 'Plan', subtitle: 'Organize the day.', route: '/plan', icon: 'calendar' },
-      { title: 'Tasks', subtitle: 'Next actions.', route: '/tasks', icon: 'checkbox' },
-      { title: 'Projects', subtitle: 'Active outcomes.', route: '/projects', icon: 'folder-open', moduleKey: 'projects' },
-      { title: 'Decisions', subtitle: 'Choice check.', route: '/decision', icon: 'git-branch', moduleKey: 'decision' }
+      { title: 'Plan', subtitle: 'Organize the day.', route: '/plan', icon: 'plan' },
+      { title: 'Tasks', subtitle: 'Next actions.', route: '/tasks', icon: 'tasks' },
+      { title: 'Projects', subtitle: 'Active outcomes.', route: '/projects', icon: 'projects', moduleKey: 'projects' },
+      { title: 'Decisions', subtitle: 'Choice check.', route: '/decision', icon: 'decisions', moduleKey: 'decision' }
     ]
   },
   {
     title: 'Growth',
     items: [
-      { title: 'Habits', subtitle: 'Steady practices.', route: '/habits', icon: 'repeat', moduleKey: 'habits' },
-      { title: 'Builder', subtitle: 'Shape POS.', route: '/builder', icon: 'construct', moduleKey: 'builder' },
-      { title: 'AI', subtitle: 'Optional advisor.', route: '/ai', icon: 'sparkles', moduleKey: 'ai' }
+      { title: 'Habits', subtitle: 'Steady practices.', route: '/habits', icon: 'habits', moduleKey: 'habits' },
+      { title: 'Builder', subtitle: 'Shape POS.', route: '/builder', icon: 'builder', moduleKey: 'builder' },
+      { title: 'AI', subtitle: 'Optional advisor.', route: '/ai', icon: 'ai', moduleKey: 'ai' }
     ]
   },
   {
     title: 'Knowledge',
     items: [
-      { title: 'Learning', subtitle: 'Study notes.', route: '/learning', icon: 'book', moduleKey: 'learning' },
-      { title: 'Capture', subtitle: 'Save a thought.', route: '/capture', icon: 'add-circle' }
+      { title: 'Learning', subtitle: 'Study notes.', route: '/learning', icon: 'learning', moduleKey: 'learning' },
+      { title: 'Capture', subtitle: 'Save a thought.', route: '/capture', icon: 'capture' }
     ]
   },
   {
     title: 'Wellbeing',
     items: [
-      { title: 'Health', subtitle: 'Body context.', route: '/health', icon: 'heart', moduleKey: 'health' },
-      { title: 'Women’s Health', subtitle: 'Cycle notes.', route: '/women-health', icon: 'moon', moduleKey: 'womenHealth' },
-      { title: 'Environment', subtitle: 'Spaces and values.', route: '/environment', icon: 'leaf', moduleKey: 'environment' }
+      { title: 'Health', subtitle: 'Body context.', route: '/health', icon: 'health', moduleKey: 'health' },
+      { title: 'Women’s Health', subtitle: 'Cycle notes.', route: '/women-health', icon: 'womenHealth', moduleKey: 'womenHealth' },
+      { title: 'Environment', subtitle: 'Spaces and values.', route: '/environment', icon: 'environment', moduleKey: 'environment' }
     ]
   },
   {
     title: 'Relationships',
     items: [
-      { title: 'Relationships', subtitle: 'Connection care.', route: '/relationships', icon: 'people' }
+      { title: 'Relationships', subtitle: 'Connection care.', route: '/relationships', icon: 'relationships' }
     ]
   }
 ] as const;
@@ -75,7 +75,7 @@ export default function ModulesScreen() {
                 <Pressable accessibilityRole="button" style={styles.shortcut}>
                   <Card style={styles.cardFill}>
                     <View style={styles.icon}>
-                      <Ionicons name={item.icon} size={21} color={theme.colors.primary} />
+                      <AppIcon name={item.icon as AppIconName} size={21} fallbackLabel={item.title.slice(0, 2)} />
                     </View>
                     <Text style={styles.cardTitle}>{item.title}</Text>
                     <Text style={styles.subtitle}>{item.subtitle}</Text>
