@@ -5,6 +5,7 @@ import { Card } from '../components/Card';
 import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { Details } from '../components/Visual';
+import { theme } from '../constants/theme';
 import { useAppData } from '../hooks/useAppData';
 import { getAISuggestion } from '../services/ai';
 
@@ -34,4 +35,9 @@ export default function AIScreen() {
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#f4f1ea' }, content: { padding: 18, paddingTop: 64 }, title: { fontSize: 32, fontWeight: '800', color: '#24322f' }, subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16 }, answer: { fontSize: 16, lineHeight: 24 } });
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: 18, paddingTop: 64 },
+  subtitle: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16 },
+  answer: { color: theme.colors.text, fontSize: 16, lineHeight: 24 }
+});

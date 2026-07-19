@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const Module = require('node:module');
 const path = require('node:path');
 const test = require('node:test');
@@ -43,7 +44,7 @@ Module._load = function patchedLoad(request, parent, isMain) {
 };
 
 require.extensions['.ts'] = (module, filename) => {
-  const source = require('node:fs').readFileSync(filename, 'utf8');
+  const source = fs.readFileSync(filename, 'utf8');
   const output = ts.transpileModule(source, {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
@@ -58,6 +59,11 @@ require.extensions['.ts'] = (module, filename) => {
 
 function fromRoot(relativePath) {
   return require(path.join(__dirname, '..', relativePath));
+}
+
+function routeToFile(route) {
+  const routeName = route.replace(/^\//, '') || 'index';
+  return path.join(__dirname, '..', 'app', `${routeName}.tsx`);
 }
 
 test.beforeEach(() => {
@@ -254,6 +260,49 @@ test('auth error mapper returns readable messages', () => {
   assert.equal(getAuthMessage(new Error('Firebase: Error (auth/invalid-credential).')), 'Email or password is not correct.');
 });
 
+test('modules screen manifest restores every POS module route', () => {
+  const { moduleCards } = fromRoot('utils/modules.ts');
+  const expectedTitles = [
+    'Tasks / Actions',
+    'Habits',
+    'Projects',
+    'Capture',
+    'Review',
+    'Learning',
+    'Decision',
+    'Health',
+    'Women’s Health',
+    'Environment',
+    'Relationships',
+    'Builder / Identity Builder',
+    'AI Advisor',
+    'Life Clock',
+    'Settings',
+    'Profile'
+  ];
+
+  assert.deepEqual(moduleCards.map(module => module.title), expectedTitles);
+  for (const module of moduleCards) {
+    assert.ok(module.title);
+    assert.ok(module.route.startsWith('/'));
+    assert.ok(module.iconKey);
+    assert.equal(fs.existsSync(routeToFile(module.route)), true, `${module.route} should have an app route file`);
+  }
+});
+
+test('module and top-action icon contracts are complete', () => {
+  const { appIconRegistry } = fromRoot('utils/icons.ts');
+  const { moduleCards } = fromRoot('utils/modules.ts');
+  const { topActionItems } = fromRoot('utils/topActions.ts');
+
+  for (const module of moduleCards) {
+    assert.ok(Object.hasOwn(appIconRegistry, module.iconKey), `${module.iconKey} should exist in icon registry`);
+  }
+  assert.deepEqual(topActionItems.map(item => item.label), ['Add to-do', 'Modules', 'Profile', 'Settings']);
+  assert.equal(topActionItems.some(item => item.label === 'Modules' && item.href === '/modules'), true);
+  assert.equal(topActionItems.some(item => item.label === 'Paste list'), false);
+});
+
 test('onboarding suggests habits and modules from setup context', () => {
   const { recommendModules, suggestHabits } = fromRoot('services/onboarding.ts');
   const habits = suggestHabits({ weeklyFocus: 'learn German consistently', energyPattern: 'low', dailyTimeBudget: '5 min' });
@@ -430,6 +479,101 @@ test('today presentation detects duplicate habit recommendations', () => {
 
   const nextSmallAction = getNextSmallActionItem(demoData.routine, { wake: true, movement: true });
   assert.equal(nextSmallAction.title, 'Shower + prep');
+});
+
+test('bulk parser handles bullets and numbered lists', () => {
+  const { parseBulkActions } = fromRoot('services/actions.ts');
+  assert.deepEqual(parseBulkActions('- Email Sam\n* Prepare slides\n1. Buy groceries\n\n2) Book appointment'), [
+    'Email Sam',
+    'Prepare slides',
+    'Buy groceries',
+    'Book appointment'
+  ]);
+});
+
+test('scheduled actions appear only within the next hour', () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { createTaskFromInput, getNextHourActions } = fromRoot('services/actions.ts');
+  const inside = createTaskFromInput({ title: 'Inside window', scheduledTime: '09:30', durationMinutes: 20 }, 1);
+  const outside = createTaskFromInput({ title: 'Outside window', scheduledTime: '11:15', durationMinutes: 20 }, 2);
+  const data = { ...defaultData, tasks: [inside, outside], routine: [] };
+
+  const nextHour = getNextHourActions(data, new Date('2026-07-19T09:00:00'));
+  assert.equal(nextHour.some(action => action.title === 'Inside window'), true);
+  assert.equal(nextHour.some(action => action.title === 'Outside window'), false);
+});
+
+test('repeating action creates habit and routine with times per week', () => {
+  const { createRepeatingAction } = fromRoot('services/actions.ts');
+  const { habit, routine } = createRepeatingAction({ title: 'Stretch', timesPerWeek: 4, daysOfWeek: ['mon', 'wed'], scheduledTime: '07:10', minimum: '2 minutes', moduleId: 'health' }, 10);
+
+  assert.equal(habit.name, 'Stretch');
+  assert.equal(habit.minimum, '2 minutes');
+  assert.equal(habit.repeat.timesPerWeek, 4);
+  assert.deepEqual(habit.repeat.daysOfWeek, ['mon', 'wed']);
+  assert.equal(routine.habitId, habit.id);
+  assert.equal(routine.scheduledTime, '07:10');
+});
+
+test('next small action does not duplicate habit progress item', () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { createRepeatingAction, createTaskFromInput, getNextSmallAction } = fromRoot('services/actions.ts');
+  const repeating = createRepeatingAction({ title: 'Movement', timesPerWeek: 3, scheduledTime: '09:05', minimum: 'Stretch' }, 20);
+  const task = createTaskFromInput({ title: 'Prepare breakfast', scheduledTime: '09:15' }, 21);
+  const data = { ...defaultData, habits: [repeating.habit], routine: [repeating.routine], tasks: [task] };
+
+  const next = getNextSmallAction(data, new Date('2026-07-19T09:00:00'), repeating.habit.id);
+  assert.equal(next.title, 'Prepare breakfast');
+});
+
+test('alignment identifies task matching weekly focus', () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { evaluateTodoAlignment } = fromRoot('services/actions.ts');
+  const data = {
+    ...defaultData,
+    preferences: { ...defaultData.preferences, weeklyFocus: 'learn German' },
+    characters: [{ ...defaultData.characters[0], desiredPerson: 'A consistent learner', values: ['learning'] }]
+  };
+  const alignment = evaluateTodoAlignment({ title: 'Study German for 10 minutes', area: 'Learning' }, data);
+  assert.equal(alignment.aligned, true);
+  assert.equal(alignment.category, 'aligned');
+  assert.match(alignment.reason, /aligned/i);
+});
+
+test('alignment treats obligations as necessary and never blocks saving', () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { createTaskFromInput, evaluateTodoAlignment } = fromRoot('services/actions.ts');
+  const task = createTaskFromInput({ title: 'Pay rent', notes: 'Maintenance', priority: 'low' }, 29);
+  const alignment = evaluateTodoAlignment(task, defaultData);
+  assert.equal(task.status, 'open');
+  assert.equal(alignment.aligned, true);
+  assert.equal(alignment.category, 'maintenance');
+  assert.match(alignment.reason, /Necessary task/);
+});
+
+test('alignment suggests parking noncentral tasks gently', () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { evaluateTodoAlignment } = fromRoot('services/actions.ts');
+  const data = { ...defaultData, preferences: { ...defaultData.preferences, weeklyFocus: 'reduce stress' } };
+  const alignment = evaluateTodoAlignment({ title: 'Research a new hobby gadget', area: 'Personal' }, data);
+  assert.equal(alignment.aligned, false);
+  assert.equal(alignment.category, 'maybeLater');
+  assert.match(alignment.reason, /Not central/);
+});
+
+test('user-scoped data remains isolated after action creation', async () => {
+  const { defaultData } = fromRoot('data/seed.ts');
+  const { createTaskFromInput } = fromRoot('services/actions.ts');
+  const { getAppData, setAppData, setStorageUser } = fromRoot('utils/storage.ts');
+
+  setStorageUser('action-user-a');
+  await setAppData({ ...defaultData, tasks: [createTaskFromInput({ title: 'Only A' }, 30)] });
+  setStorageUser('action-user-b');
+  await setAppData({ ...defaultData, tasks: [createTaskFromInput({ title: 'Only B' }, 31)] });
+
+  assert.equal((await getAppData()).tasks[0].title, 'Only B');
+  setStorageUser('action-user-a');
+  assert.equal((await getAppData()).tasks[0].title, 'Only A');
 });
 
 test('habit streak helper counts consecutive completion days safely', () => {

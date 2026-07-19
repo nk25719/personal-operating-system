@@ -4,6 +4,7 @@ import { Card } from '../components/Card';
 import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { Details, ProgressBar, StatCard } from '../components/Visual';
+import { theme } from '../constants/theme';
 import { useAppData } from '../hooks/useAppData';
 import { Habit } from '../types';
 
@@ -54,4 +55,14 @@ export default function HabitsScreen() {
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#f6f3ec' }, content: { padding: 18, paddingTop: 64, paddingBottom: 44 }, title: { fontSize: 32, fontWeight: '900', color: '#24322f' }, subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16, lineHeight: 22 }, cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 8, color: '#24322f' }, body: { color: '#3f4a45', lineHeight: 22 }, metricRow: { flexDirection: 'row', gap: 10 }, two: { flexDirection: 'row', gap: 10 }, flex: { flex: 1 }, row: { flexDirection: 'row', gap: 10, flexWrap: 'wrap', marginTop: 8 }, muted: { color: '#68766f', marginTop: 8, lineHeight: 20 } });
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: 18, paddingTop: 64, paddingBottom: 44 },
+  subtitle: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16, lineHeight: 22 },
+  cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 8, color: theme.colors.text },
+  body: { color: theme.colors.text, lineHeight: 22 },
+  metricRow: { flexDirection: 'row', gap: 10 },
+  two: { flexDirection: 'row', gap: 10 },
+  flex: { flex: 1 },
+  row: { flexDirection: 'row', gap: 10, flexWrap: 'wrap', marginTop: 8 }
+});

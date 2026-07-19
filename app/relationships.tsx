@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Link } from 'expo-router';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Chip } from '../components/Visual';
@@ -85,7 +84,7 @@ export default function RelationshipsScreen() {
           <Chip label="No feed" />
           <Chip label="No public streaks" />
         </View>
-        <Link href="/social" asChild><Button title="Open connections" variant="secondary" /></Link>
+        <Text style={styles.muted}>Connection tools live on this screen.</Text>
       </Card>
     </ScrollView>
   );

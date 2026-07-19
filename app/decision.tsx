@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '../components/Card';
 import { SecondaryHeader } from '../components/SecondaryHeader';
+import { theme } from '../constants/theme';
 import { useAppData } from '../hooks/useAppData';
 
 function NumberField({ label, value, setValue }: { label: string; value: number; setValue: (n: number) => void }) {
@@ -35,4 +36,14 @@ export default function DecisionScreen() {
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#f4f1ea' }, content: { padding: 18, paddingTop: 64 }, title: { fontSize: 32, fontWeight: '800', color: '#24322f' }, subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16 }, titleInput: { fontSize: 18, borderBottomWidth: 1, borderBottomColor: '#dde7df', paddingVertical: 12, marginBottom: 12 }, row: { marginVertical: 10 }, label: { fontSize: 15, fontWeight: '700', marginBottom: 6, color: '#3f4a45' }, input: { backgroundColor: '#f4f1ea', borderRadius: 10, padding: 12, fontSize: 18 }, total: { fontSize: 22, fontWeight: '800', marginTop: 16, color: '#24322f' }, result: { fontSize: 18, marginTop: 8, color: '#3f4a45' } });
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: 18, paddingTop: 64 },
+  subtitle: { color: theme.colors.textMuted, marginTop: 6, marginBottom: 16 },
+  titleInput: { fontSize: 18, borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingVertical: 12, marginBottom: 12 },
+  row: { marginVertical: 10 },
+  label: { fontSize: 15, fontWeight: '700', marginBottom: 6, color: theme.colors.text },
+  input: { backgroundColor: theme.colors.background, borderRadius: 10, padding: 12, fontSize: 18 },
+  total: { fontSize: 22, fontWeight: '800', marginTop: 16, color: theme.colors.text },
+  result: { fontSize: 18, marginTop: 8, color: theme.colors.text }
+});

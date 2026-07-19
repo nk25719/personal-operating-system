@@ -41,27 +41,70 @@ export type RoutineItem = {
   time: string;
   title: string;
   category: 'Body' | 'Mind' | 'Language' | 'Reading' | 'Work' | 'Service' | 'Home' | 'Learning' | 'Rest';
+  notes?: string;
+  type?: 'todo' | 'scheduled' | 'routine' | 'habit';
+  moduleId?: ModuleKey;
+  projectId?: string;
+  habitId?: string;
+  scheduledTime?: string;
+  durationMinutes?: number;
+  repeat?: ActionRepeat;
+  priority?: ActionPriority;
+  status?: ActionStatus;
+  createdAt?: string;
+  completedAt?: string;
 };
 
 export type Habit = {
   id: string;
+  title?: string;
   name: string;
   frequency: string;
   minimum: string;
   why: string;
   reminderTime?: string;
+  notes?: string;
+  type?: 'habit';
+  moduleId?: ModuleKey;
+  projectId?: string;
+  habitId?: string;
+  scheduledTime?: string;
+  durationMinutes?: number;
+  repeat?: ActionRepeat;
+  priority?: ActionPriority;
+  status?: ActionStatus;
+  createdAt?: string;
+  completedAt?: string;
   isVisibleToOthers?: boolean;
   visibleTo?: string[];
 };
+
+export type ActionRepeat = {
+  frequency: 'none' | 'daily' | 'weekly';
+  daysOfWeek?: DayOfWeek[];
+  timesPerWeek?: number;
+};
+
+export type DayOfWeek = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+export type ActionPriority = 'low' | 'medium' | 'high';
+export type ActionStatus = 'open' | 'done' | 'skipped';
 
 export type Task = {
   id: string;
   title: string;
   notes?: string;
+  type?: 'todo' | 'scheduled' | 'routine' | 'habit';
+  moduleId?: ModuleKey;
   area: 'Personal' | 'Work' | 'Project' | 'Learning' | 'Health' | 'Home' | 'Service';
-  status: 'Todo' | 'Doing' | 'Done';
-  priority: 'Low' | 'Medium' | 'High';
+  status: 'Todo' | 'Doing' | 'Done' | ActionStatus;
+  priority: 'Low' | 'Medium' | 'High' | ActionPriority;
   dueDate?: string;
+  scheduledTime?: string;
+  durationMinutes?: number;
+  repeat?: ActionRepeat;
+  habitId?: string;
+  createdAt?: string;
+  completedAt?: string;
   estimatedMinutes?: number;
   projectId?: string;
   alignmentNote?: string;
@@ -103,6 +146,9 @@ export type MotivationCheckIn = {
 export type MutationEventType =
   | 'habit.completed'
   | 'task.created'
+  | 'task.bulk_created'
+  | 'routine.created'
+  | 'habit.created'
   | 'capture.saved'
   | 'agency.updated'
   | 'recommendation.accepted'

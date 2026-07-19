@@ -18,9 +18,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
     shadowColor: theme.colors.accent,
-    shadowOpacity: 0.045,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.035,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
     elevation: 1
   },
   soft: {

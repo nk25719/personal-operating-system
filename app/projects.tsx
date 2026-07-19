@@ -4,6 +4,7 @@ import { Card } from '../components/Card';
 import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { Details, ProgressBar, StatCard } from '../components/Visual';
+import { theme } from '../constants/theme';
 import { useAppData } from '../hooks/useAppData';
 import { Project } from '../types';
 
@@ -52,4 +53,13 @@ function averageProgress(projects: Project[]) {
   if (!projects.length) return 0;
   return Math.round(projects.reduce((total, project) => total + project.progress, 0) / projects.length);
 }
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#f4f1ea' }, content: { padding: 18, paddingTop: 64 }, title: { fontSize: 32, fontWeight: '800', marginBottom: 16, color: '#24322f' }, cardTitle: { fontSize: 20, fontWeight: '800', marginBottom: 8, color: '#24322f' }, body: { color: '#3f4a45', lineHeight: 22 }, metricRow: { flexDirection: 'row', gap: 10 }, row: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 }, two: { flexDirection: 'row', gap: 10 }, flex: { flex: 1 } });
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: 18, paddingTop: 64 },
+  cardTitle: { fontSize: 20, fontWeight: '800', marginBottom: 8, color: theme.colors.text },
+  body: { color: theme.colors.text, lineHeight: 22 },
+  metricRow: { flexDirection: 'row', gap: 10 },
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
+  two: { flexDirection: 'row', gap: 10 },
+  flex: { flex: 1 }
+});

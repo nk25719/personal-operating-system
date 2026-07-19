@@ -4,13 +4,14 @@ import { Link } from 'expo-router';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { HeaderActions } from '../components/HeaderActions';
-import { Chip, Details } from '../components/Visual';
+import { Details } from '../components/Visual';
 import { useAppData } from '../hooks/useAppData';
 import { defaultMotivationCheckIn, getMockRecommendations, motivationStorageKey, openTasks, preferredName } from '../services/os';
 import { isRelationshipCue } from '../services/relationshipCue';
 import { MotivationCheckIn, PlannerMemoryRecord, Recommendation } from '../types';
 import { getJSON, getPlannerMemory, getUserScopedStorageKey } from '../utils/storage';
 import { theme } from '../constants/theme';
+import { AppIcon } from '../components/AppIcon';
 
 export default function HomeScreen() {
   const { data, loading } = useAppData();
@@ -46,14 +47,9 @@ export default function HomeScreen() {
         </View>
         <HeaderActions />
       </View>
-      <View style={styles.chips}>
-        <Chip label="What needs care now" />
-        <Chip label="Local-first" />
-      </View>
-
       <Card variant="highlight">
         <View style={styles.row}>
-          <View style={styles.icon}><Text style={styles.iconText}>!</Text></View>
+          <View style={styles.icon}><AppIcon name="today" size={20} fallbackLabel="!" /></View>
           <View style={styles.copy}>
             <Text style={styles.cardLabel}>Needs attention now</Text>
             <Text style={styles.cardTitle}>{task?.title ?? 'No urgent task.'}</Text>
@@ -65,7 +61,7 @@ export default function HomeScreen() {
 
       <Card>
         <View style={styles.row}>
-          <View style={styles.icon}><Text style={styles.iconText}>+</Text></View>
+          <View style={styles.icon}><AppIcon name="add" size={20} fallbackLabel="+" /></View>
           <View style={styles.copy}>
             <Text style={styles.cardLabel}>Suggested adjustment</Text>
             <Text style={styles.cardTitle}>{adjustment?.title ?? 'Nothing to adjust.'}</Text>
@@ -81,7 +77,7 @@ export default function HomeScreen() {
 
       <Card>
         <View style={styles.row}>
-          <View style={styles.icon}><Text style={styles.iconText}>•</Text></View>
+          <View style={styles.icon}><AppIcon name="lifeClock" size={20} fallbackLabel="•" /></View>
           <View style={styles.copy}>
             <Text style={styles.cardLabel}>Upcoming</Text>
             <Text style={styles.cardTitle}>{reminder.title}</Text>
@@ -108,10 +104,8 @@ const styles = StyleSheet.create({
   titleBlock: { flex: 1 },
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 11 },
   title: { fontSize: 34, fontWeight: '900', color: theme.colors.text, marginTop: 6, lineHeight: 38 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, marginBottom: 16 },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
-  iconText: { color: theme.colors.primary, fontSize: 20, fontWeight: '900' },
   copy: { flex: 1 },
   cardLabel: { color: theme.colors.accent, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12, marginBottom: 5 },
   cardTitle: { fontSize: 20, fontWeight: '900', color: theme.colors.text, lineHeight: 25 },

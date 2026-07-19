@@ -1,92 +1,52 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
+import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { HeaderActions } from '../components/HeaderActions';
-import { Chip } from '../components/Visual';
 import { theme } from '../constants/theme';
 import { useAppData } from '../hooks/useAppData';
-import { ModuleKey } from '../types';
-import { AppIcon, AppIconName } from '../components/AppIcon';
-
-const groups = [
-  {
-    title: 'Planning',
-    items: [
-      { title: 'Plan', subtitle: 'Organize the day.', route: '/plan', icon: 'plan' },
-      { title: 'Tasks', subtitle: 'Next actions.', route: '/tasks', icon: 'tasks' },
-      { title: 'Projects', subtitle: 'Active outcomes.', route: '/projects', icon: 'projects', moduleKey: 'projects' },
-      { title: 'Decisions', subtitle: 'Choice check.', route: '/decision', icon: 'decisions', moduleKey: 'decision' }
-    ]
-  },
-  {
-    title: 'Growth',
-    items: [
-      { title: 'Habits', subtitle: 'Steady practices.', route: '/habits', icon: 'habits', moduleKey: 'habits' },
-      { title: 'Builder', subtitle: 'Shape POS.', route: '/builder', icon: 'builder', moduleKey: 'builder' },
-      { title: 'AI', subtitle: 'Optional advisor.', route: '/ai', icon: 'ai', moduleKey: 'ai' }
-    ]
-  },
-  {
-    title: 'Knowledge',
-    items: [
-      { title: 'Learning', subtitle: 'Study notes.', route: '/learning', icon: 'learning', moduleKey: 'learning' },
-      { title: 'Capture', subtitle: 'Save a thought.', route: '/capture', icon: 'capture' }
-    ]
-  },
-  {
-    title: 'Wellbeing',
-    items: [
-      { title: 'Health', subtitle: 'Body context.', route: '/health', icon: 'health', moduleKey: 'health' },
-      { title: 'Women’s Health', subtitle: 'Cycle notes.', route: '/women-health', icon: 'womenHealth', moduleKey: 'womenHealth' },
-      { title: 'Environment', subtitle: 'Spaces and values.', route: '/environment', icon: 'environment', moduleKey: 'environment' }
-    ]
-  },
-  {
-    title: 'Relationships',
-    items: [
-      { title: 'Relationships', subtitle: 'Connection care.', route: '/relationships', icon: 'relationships' }
-    ]
-  }
-] as const;
+import { AppIcon } from '../components/AppIcon';
+import { moduleCards } from '../utils/modules';
 
 export default function ModulesScreen() {
   const { data } = useAppData();
   const recommended = new Set(data?.preferences.recommendedModules ?? []);
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.topRow}>
         <View style={styles.titleBlock}>
           <Text style={styles.eyebrow}>Modules</Text>
-          <Text style={styles.title}>More tools</Text>
+          <Text style={styles.title}>All tools</Text>
         </View>
         <HeaderActions />
       </View>
-      <View style={styles.chips}>
-        <Chip label="One tap away" />
-        <Chip label="Local-first" />
-      </View>
-
-      {groups.map(group => (
-        <View key={group.title} style={styles.group}>
-          <Text style={styles.sectionTitle}>{group.title}</Text>
-          <View style={styles.grid}>
-            {group.items.map(item => (
-              <Link key={item.route} href={item.route as any} asChild>
-                <Pressable accessibilityRole="button" style={styles.shortcut}>
-                  <Card style={styles.cardFill}>
-                    <View style={styles.icon}>
-                      <AppIcon name={item.icon as AppIconName} size={21} fallbackLabel={item.title.slice(0, 2)} />
-                    </View>
+      <View style={styles.list}>
+        {moduleCards.map(item => {
+          const isRecommended = item.moduleKey ? recommended.has(item.moduleKey) : false;
+          return (
+            <Card key={item.key} style={styles.card}>
+              <View style={styles.cardRow}>
+                <View style={styles.icon}>
+                  <AppIcon name={item.iconKey} size={22} fallbackLabel={item.title.slice(0, 2)} />
+                </View>
+                <View style={styles.copy}>
+                  <View style={styles.titleRow}>
                     <Text style={styles.cardTitle}>{item.title}</Text>
-                    <Text style={styles.subtitle}>{item.subtitle}</Text>
-                    {'moduleKey' in item && recommended.has(item.moduleKey as ModuleKey) ? <Text style={styles.suggested}>Suggested</Text> : null}
-                  </Card>
-                </Pressable>
-              </Link>
-            ))}
-          </View>
-        </View>
-      ))}
+                    {isRecommended ? <Text style={styles.badge}>Recommended</Text> : null}
+                  </View>
+                  <Text style={styles.subtitle}>{item.statusLabel ?? item.description}</Text>
+                </View>
+              </View>
+              <View style={styles.open}>
+                <Link href={item.route as any} asChild>
+                  <Button title="Open" variant="secondary" />
+                </Link>
+              </View>
+            </Card>
+          );
+        })}
+      </View>
     </ScrollView>
   );
 }
@@ -98,14 +58,14 @@ const styles = StyleSheet.create({
   titleBlock: { flex: 1 },
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 11 },
   title: { fontSize: 34, fontWeight: '900', color: theme.colors.text, marginTop: 6, lineHeight: 38 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, marginBottom: 16 },
-  group: { marginTop: 4 },
-  sectionTitle: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.8, fontSize: 12, marginBottom: 10 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  shortcut: { width: '48%' },
-  cardFill: { minHeight: 134, justifyContent: 'space-between' },
-  icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  cardTitle: { fontSize: 18, fontWeight: '900', color: theme.colors.text, lineHeight: 22 },
-  subtitle: { color: theme.colors.textMuted, lineHeight: 19, marginTop: 5 },
-  suggested: { color: theme.colors.accent, fontSize: 12, fontWeight: '900', marginTop: 8, textTransform: 'uppercase' }
+  list: { gap: 10 },
+  card: { gap: 12 },
+  cardRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+  icon: { width: 42, height: 42, borderRadius: 21, backgroundColor: theme.colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  copy: { flex: 1 },
+  titleRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 },
+  badge: { color: theme.colors.accent, backgroundColor: theme.colors.accentSoft, overflow: 'hidden', borderRadius: 999, paddingVertical: 4, paddingHorizontal: 8, fontSize: 11, fontWeight: '900' },
+  cardTitle: { flex: 1, fontSize: 18, fontWeight: '900', color: theme.colors.text, lineHeight: 22 },
+  subtitle: { color: theme.colors.textMuted, lineHeight: 19, marginTop: 4 },
+  open: { alignSelf: 'flex-start' }
 });

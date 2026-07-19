@@ -3,6 +3,7 @@ import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
+import { theme } from '../constants/theme';
 import { useAppData } from '../hooks/useAppData';
 import { LearningTopic } from '../types';
 
@@ -29,4 +30,8 @@ export default function LearningScreen() {
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#f4f1ea' }, content: { padding: 18, paddingTop: 64 }, title: { fontSize: 32, fontWeight: '800', color: '#24322f' }, subtitle: { color: '#68766f', marginBottom: 16, marginTop: 6 } });
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: 18, paddingTop: 64 },
+  subtitle: { color: theme.colors.textMuted, marginBottom: 16, marginTop: 6 }
+});

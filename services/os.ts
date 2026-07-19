@@ -23,12 +23,17 @@ export function personalPrompt(data: AppData, offset = 0) {
 
 export function openTasks(data: AppData): Task[] {
   return (data.tasks ?? [])
-    .filter(task => task.status !== 'Done')
+    .filter(task => task.status !== 'Done' && task.status !== 'done')
     .sort((a, b) => {
-      const rank = { High: 0, Medium: 1, Low: 2 } as const;
-      return rank[a.priority] - rank[b.priority];
+      return priorityRank[priorityKey(a.priority)] - priorityRank[priorityKey(b.priority)];
     });
 }
+
+function priorityKey(priority: Task['priority']): keyof typeof priorityRank {
+  return String(priority).toLowerCase() as keyof typeof priorityRank;
+}
+
+const priorityRank = { high: 0, medium: 1, low: 2 } as const;
 
 export function nextTask(data: AppData): Task | undefined {
   return openTasks(data)[0];

@@ -17,7 +17,7 @@ export const theme = {
     white: '#ffffff'
   },
   radius: {
-    card: 18,
+    card: 14,
     control: 999,
     chip: 999
   },

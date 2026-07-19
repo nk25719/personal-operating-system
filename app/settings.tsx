@@ -5,6 +5,7 @@ import { Card } from '../components/Card';
 import { SecondaryHeader } from '../components/SecondaryHeader';
 import { Field } from '../components/Field';
 import { Chip, Details, StatCard } from '../components/Visual';
+import { theme } from '../constants/theme';
 import { useAppData } from '../hooks/useAppData';
 import { createTodayCalendarEvents } from '../services/calendar';
 import { logOut } from '../services/firebase';
@@ -13,6 +14,8 @@ import { scheduleHabitReminders } from '../services/reminders';
 import { Character } from '../types';
 import { exportAppBackup, importAppBackup, previewAppBackup, resetAppData } from '../utils/storage';
 import { getIntegrationSecrets, setSecret } from '../utils/secrets';
+import { AppIcon } from '../components/AppIcon';
+import { appIconRegistry, AppIconName } from '../utils/icons';
 
 const newCharacter = (): Character => ({ id: `human-${Date.now()}`, name: 'New human', identity: 'Describe who this person is becoming.', desiredPerson: '', dailyObligations: '', missionQuestion: 'Does this move me closer to who I am becoming?', values: ['Health', 'Growth'], demographics: { biologicalSex: 'preferNotToSay', showWomenHealth: false }, healthProfile: { enabled: false, medicalConditions: '', allergies: '', physicalLimitations: '', medications: '', pregnancyStatus: 'preferNotToSay', sleepIssues: '', dietaryPreferences: '', mentalHealthConsiderations: '', painOrEnergyNotes: '', clinicianGuidance: '', habitIntensity: 'moderate', showHealthDisclaimer: true } });
 
@@ -116,6 +119,20 @@ export default function SettingsScreen() {
         </Details>
       </Card>
       <Card>
+        <Text style={styles.cardTitle}>Icon check</Text>
+        <Text style={styles.note}>All app icons should show with a label.</Text>
+        <View style={styles.iconGrid}>
+          {(Object.keys(appIconRegistry) as AppIconName[]).map(iconKey => (
+            <View key={iconKey} style={styles.iconCheck}>
+              <View style={styles.iconCircle}>
+                <AppIcon name={iconKey} size={20} fallbackLabel={iconKey.slice(0, 2)} />
+              </View>
+              <Text style={styles.iconLabel}>{iconKey}</Text>
+            </View>
+          ))}
+        </View>
+      </Card>
+      <Card>
         <Text style={styles.cardTitle}>Actions</Text>
         <Button title="Schedule reminders" variant="secondary" onPress={async () => setMessage(await scheduleHabitReminders(data))} />
         <Details title="More actions">
@@ -148,4 +165,20 @@ export default function SettingsScreen() {
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({ note: { color: '#68766f', marginTop: 8, lineHeight: 20 }, privacyLine: { color: '#3f4a45', marginTop: 8, lineHeight: 21 }, warning: { color: '#9a6b4f', marginTop: 10, lineHeight: 20, fontWeight: '800' }, previewBox: { backgroundColor: '#eef5f1', borderWidth: 1, borderColor: '#d8e6de', borderRadius: 14, padding: 12, marginTop: 12, marginBottom: 12 }, container: { flex: 1, backgroundColor: '#f4f1ea' }, content: { padding: 18, paddingTop: 64 }, title: { fontSize: 32, fontWeight: '800', color: '#24322f' }, subtitle: { color: '#68766f', marginTop: 6, marginBottom: 16 }, chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10, marginBottom: 16 }, metricRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12 }, message: { fontSize: 16, lineHeight: 24 }, smallTitle: { fontSize: 16, fontWeight: '800', marginTop: 8, marginBottom: 8 } });
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: 18, paddingTop: 64 },
+  note: { color: theme.colors.textMuted, marginTop: 8, lineHeight: 20 },
+  privacyLine: { color: theme.colors.text, marginTop: 8, lineHeight: 21 },
+  warning: { color: theme.colors.warning, marginTop: 10, lineHeight: 20, fontWeight: '800' },
+  previewBox: { backgroundColor: theme.colors.surfaceSoft, borderWidth: 1, borderColor: theme.colors.primarySoft, borderRadius: 14, padding: 12, marginTop: 12, marginBottom: 12 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10, marginBottom: 16 },
+  metricRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
+  iconCheck: { width: '30%', alignItems: 'center', gap: 6 },
+  iconCircle: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceSoft },
+  iconLabel: { color: theme.colors.textMuted, fontSize: 11, fontWeight: '800', textAlign: 'center' },
+  cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 12, color: theme.colors.text },
+  message: { color: theme.colors.text, fontSize: 16, lineHeight: 24 },
+  smallTitle: { color: theme.colors.text, fontSize: 16, fontWeight: '800', marginTop: 8, marginBottom: 8 }
+});

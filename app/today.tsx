@@ -13,7 +13,8 @@ import { Chip, ProgressBar } from '../components/Visual';
 import { MotivationCheckIn, MutationEvent, PlannerMemoryRecord, PlannerMemoryResponse, Recommendation, RecommendationAction } from '../types';
 import { recordRecommendationResponse } from '../services/plannerMemory';
 import { isRelationshipCue } from '../services/relationshipCue';
-import { getNextSmallActionItem, getSmallStep, isRecommendationForHabit } from '../services/todayPresentation';
+import { getSmallStep, isRecommendationForHabit } from '../services/todayPresentation';
+import { getNextHourActions, getNextSmallAction } from '../services/actions';
 import { calculateHabitStreak, formatConsecutiveCompletion, formatStreak } from '../services/streaks';
 import { theme } from '../constants/theme';
 
@@ -55,15 +56,15 @@ export default function TodayScreen() {
   const completed = routine.filter(item => done[item.id]).length;
   const firstName = preferredName(data);
   const prompt = personalPrompt(data);
-  const desiredPerson = data.characters.find(character => character.id === data.activeCharacterId)?.desiredPerson;
   const nextHabit = data.habits[0];
   const habitRecommendation = recommendations.find(item => isRecommendationForHabit(item, nextHabit));
   const selectedHabitRecommendationAction = habitRecommendation ? recommendationState[habitRecommendation.id] : undefined;
   const habitPercent = routine.length ? Math.round((completed / routine.length) * 100) : 0;
-  const nextSmallAction = getNextSmallActionItem(routine, done);
+  const nextSmallAction = getNextSmallAction(data, new Date(), nextHabit?.id, done);
+  const nextHourActions = getNextHourActions(data, new Date(), done).filter(action => action.id !== nextSmallAction?.id && action.habitId !== nextHabit?.id && action.id !== nextHabit?.id);
   const habitSmallStep = nextHabit?.minimum || getSmallStep(habitRecommendation, nextHabit);
   const habitStreak = nextHabit ? calculateHabitStreak(events, nextHabit.id) : 0;
-  const nextSmallActionStreak = nextSmallAction ? calculateHabitStreak(events, nextSmallAction.id) : 0;
+  const nextSmallActionStreak = nextSmallAction?.habitId ? calculateHabitStreak(events, nextSmallAction.habitId) : nextSmallAction ? calculateHabitStreak(events, nextSmallAction.id) : 0;
 
   const toggle = async (id: string) => {
     const nextDone = { ...done, [id]: !done[id] };
@@ -99,7 +100,6 @@ export default function TodayScreen() {
           <View style={styles.heroCopy}>
             <Text style={styles.eyebrow}>Today</Text>
             <Text style={styles.title}>Hello {firstName}</Text>
-            {desiredPerson ? <Text style={styles.subtitle}>Ready to move one step closer to becoming {desiredPerson}?</Text> : null}
           </View>
           <View style={styles.heroActions}>
             <HeaderActions />
@@ -114,16 +114,12 @@ export default function TodayScreen() {
           <>
             <ChecklistRow
               key={nextSmallAction.id}
-              time={nextSmallAction.time}
+              time={nextSmallAction.time ?? ''}
               title={nextSmallAction.title}
-              detail={formatConsecutiveCompletion(nextSmallActionStreak)}
+              detail={nextSmallAction.habitId ? formatConsecutiveCompletion(nextSmallActionStreak) : nextSmallAction.detail}
               done={!!done[nextSmallAction.id]}
               onPress={() => toggle(nextSmallAction.id)}
             />
-            <View style={styles.nextHour}>
-              <Text style={styles.stepLabel}>Next hour</Text>
-              <Text style={styles.muted}>{nextSmallAction.time} {nextSmallAction.title}</Text>
-            </View>
           </>
         ) : (
           <>
@@ -131,6 +127,20 @@ export default function TodayScreen() {
             <Text style={styles.muted}>{data.preferences.weeklyFocus ? `Use this time for ${data.preferences.weeklyFocus}.` : 'Use this time for your focus.'}</Text>
           </>
         )}
+      </Card>
+
+      <Card>
+        <Text style={styles.cardLabel}>Next hour</Text>
+        {nextHourActions.length ? nextHourActions.map(action => (
+          <ChecklistRow
+            key={action.id}
+            time={action.time ?? ''}
+            title={action.title}
+            detail={action.detail}
+            done={!!done[action.id]}
+            onPress={() => toggle(action.id)}
+          />
+        )) : <Text style={styles.body}>Nothing scheduled in the next hour.</Text>}
       </Card>
 
       {nextHabit ? (
@@ -164,7 +174,6 @@ const styles = StyleSheet.create({
   heroCopy: { flex: 1 },
   eyebrow: { color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 11 },
   title: { fontSize: 32, fontWeight: '900', color: theme.colors.text, marginTop: 6, letterSpacing: -0.5, lineHeight: 36 },
-  subtitle: { fontSize: 15, color: theme.colors.textMuted, marginTop: 10, lineHeight: 22 },
   cardLabel: { color: theme.colors.accent, fontWeight: '900', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.6, fontSize: 12 },
   cardTitle: { fontSize: 20, fontWeight: '900', marginBottom: 8, color: theme.colors.text, lineHeight: 24, flexShrink: 1 },
   habitTitleRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 },

@@ -21,12 +21,12 @@ export default function RootLayout() {
       }}>
         <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color, size }) => <AppIcon name="home" color={color} size={size} fallbackLabel="H" /> }} />
         <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <AppIcon name="today" color={color} size={size} fallbackLabel="T" /> }} />
+        <Tabs.Screen name="plan" options={{ title: 'Plan', tabBarIcon: ({ color, size }) => <AppIcon name="plan" color={color} size={size} fallbackLabel="P" /> }} />
         <Tabs.Screen name="growth" options={{ title: 'Growth', tabBarIcon: ({ color, size }) => <AppIcon name="growth" color={color} size={size} fallbackLabel="G" /> }} />
         <Tabs.Screen name="knowledge" options={{ title: 'Knowledge', tabBarIcon: ({ color, size }) => <AppIcon name="knowledge" color={color} size={size} fallbackLabel="K" /> }} />
         <Tabs.Screen name="relationships" options={{ href: null }} />
         <Tabs.Screen name="modules" options={{ href: null }} />
         <Tabs.Screen name="capture" options={{ href: null }} />
-        <Tabs.Screen name="plan" options={{ href: null }} />
         <Tabs.Screen name="review" options={{ href: null }} />
         <Tabs.Screen name="auth" options={{ href: null }} />
         <Tabs.Screen name="settings" options={{ href: null }} />
@@ -34,7 +34,6 @@ export default function RootLayout() {
 
         <Tabs.Screen name="tasks" options={{ href: null }} />
         <Tabs.Screen name="profile" options={{ href: null }} />
-        <Tabs.Screen name="social" options={{ href: null }} />
         <Tabs.Screen name="habits" options={{ href: null }} />
         <Tabs.Screen name="projects" options={{ href: null }} />
         <Tabs.Screen name="learning" options={{ href: null }} />
